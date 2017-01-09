@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>index</title>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="static/css/index.css" type="text/css" charset="utf-8">
+  </head>
+  <body>
+    <div id="app">
+      <textarea v-model="message" placeholder="add multiple lines"></textarea>
+      <img v-if="image" :src="image"/>
+      <input @change="onFileChange" type="file" name="pic" id="pic" accept="image/gif, image/jpeg" />
+      <button id="btn-send" @click="onClickSend">send</button>
+    </div>
+    <script src="static/js/index.js"></script>
+  </body>
+</html>
