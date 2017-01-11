@@ -12,9 +12,21 @@ module.exports = {
   },
   module: {
     loaders: [
+      { test: /\.vue$/, loader: 'vue',
+        options: {
+          loaders: {
+            scss: 'vue-style-loader!css-loader!sass-loader',
+            sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
+          }
+        }
+      },
       {
-        test: /\.vue$/,
-        loader: 'vue'
+        test: /\.js$/,
+        exclude: /(node_modules|bower_components)/,
+        loader: 'babel-loader',
+        query: {
+          presets: ['es2015']
+        }
       }
     ]
   },

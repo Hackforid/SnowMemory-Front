@@ -1,7 +1,8 @@
 const gulp = require('gulp')
 const webpack = require('gulp-webpack')
 const named = require('vinyl-named')
-const syncy = require('syncy')
+const rsync = require('gulp-rsync')
+
 
 
 const targetFiles = ['main.js']
@@ -9,22 +10,22 @@ const targetFiles = ['main.js']
 gulp.task('build', function () {
   return gulp.src(mapFiles(targetFiles))
           .pipe(named())
-          .pipe(webpack())
+          .pipe(webpack(getConfig()))
           .pipe(gulp.dest('dist/'))
 })
 
-gulp.task('watch', ['sync:watch', 'webpack:watch'])
+gulp.task('watch', ['watch:rsync', 'watch:webpack'], function() {
+})
 
-gulp.task('webpack:watch', function() {
-  return null
+gulp.task('watch:webpack', function() {
   gulp.src(mapFiles(targetFiles))
           .pipe(named())
-          .pipe(webpack({watch: true}))
+          .pipe(webpack(getConfig({watch: true})))
           .pipe(gulp.dest('dist/'))
 })
 
-gulp.task('sync:watch', function () {
-  gulp.watch('src/*.html, src/static/**', ['sync'])
+gulp.task('watch:rsync', ['rsync'], function () {
+  gulp.watch(['src/*.html', 'src/static/**'], ['rsync'])
 })
 
 
@@ -43,6 +44,14 @@ function getConfig(opt) {
               sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
             }
           }
+        },
+        {
+          test: /\.js$/,
+          exclude: /(node_modules|bower_components)/,
+          loader: 'babel-loader',
+          query: {
+            presets: ['es2015']
+          }
         }
       ]
     },
@@ -56,17 +65,23 @@ function getConfig(opt) {
   }
   return config
 }
-gulp.task('sync', function() {
-  syncFile()
+
+gulp.task('rsync', function() {
+  const exclude = ['.*', '*.swp']
+  return gulp.src(['src/*.html', 'src/static/**'])
+    .pipe(rsync({
+      root: 'src/',
+      destination: 'dist/',
+      exclude: exclude,
+      include: ['*.min.js', '*.min.css'],
+      recursive: true,
+      times: true,
+      update: true
+    }))
+    .on('error', function(e) {
+      console.log('>>> ERROR', e);
+      this.emit('end');
+    })
 })
 
-function syncFile() {
-  syncy(['src/*.html', 'src/static/**'], 'dist',
-    {base: 'src',
-      updateAndDelete: false
-    })
-    .then(() => {
-      console.log('Done!');
-    })
-    .catch(console.error);
-}
+
