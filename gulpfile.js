@@ -1,5 +1,5 @@
 const gulp = require('gulp')
-const webpack = require('gulp-webpack')
+const webpack = require('webpack-stream')
 const named = require('vinyl-named')
 const rsync = require('gulp-rsync')
 
@@ -7,7 +7,7 @@ const rsync = require('gulp-rsync')
 
 const targetFiles = ['main.js']
 
-gulp.task('build', function () {
+gulp.task('build:webpack', function () {
   return gulp.src(mapFiles(targetFiles))
           .pipe(named())
           .pipe(webpack(getConfig()))
@@ -47,10 +47,10 @@ function getConfig(opt) {
         },
         {
           test: /\.js$/,
-          exclude: /(node_modules|bower_components)/,
           loader: 'babel-loader',
+          exclude: /(node_modules|bower_components)/,
           query: {
-            presets: ['es2015']
+            presets: ['es-2015', 'stage-0']
           }
         }
       ]
