@@ -37,13 +37,9 @@ function getConfig(opt) {
   var config = {
     module: {
       loaders: [
-        { test: /\.vue$/,
-          loader: 'vue',
-          options: {
-            loaders: {
-              scss: 'vue-style-loader!css-loader!sass-loader'
-            }
-          }
+        {
+          test: /\.vue$/,
+          loader: 'vue'
         },
         {
           test: /\.scss$/,
@@ -65,6 +61,11 @@ function getConfig(opt) {
         'vue': 'vue/dist/vue.js'
       }
     },
+    vue: {
+      loaders: {
+        scss: 'vue-style-loader!css-loader!sass-loader'
+      }
+    }
   }
   if (!opt) {
     return config
