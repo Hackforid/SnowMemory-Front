@@ -13,7 +13,7 @@ export default {
 
 <style lang="scss">
 .navigation {
-  background-color: #ffffff;
+  background-color: #aaa;
   position: fixed;
   top: 0;
   left: 0;

@@ -1,16 +1,32 @@
 const gulp = require('gulp')
-const webpack = require('webpack-stream')
+const webpack = require('webpack')
+const webpackStream = require('webpack-stream')
 const named = require('vinyl-named')
 const rsync = require('gulp-rsync')
+const gutil = require("gulp-util")
+const WebpackDevServer = require("webpack-dev-server")
+const FriendlyErrors = require('friendly-errors-webpack-plugin')
+const server = require('gulp-server-livereload')
+const path = require('path')
+
 
 
 
 const targetFiles = ['main.js']
 
+gulp.task("dev", ['watch'], function(callback) {
+  gulp.src('dist')
+  .pipe(server({
+    livereload: true,
+    directoryListing: true,
+    opem: true
+  }))
+});
+
 gulp.task('build:webpack', function () {
   return gulp.src(mapFiles(targetFiles))
           .pipe(named())
-          .pipe(webpack(getConfig()))
+          .pipe(webpackStream(getConfig()))
           .pipe(gulp.dest('dist/'))
 })
 
@@ -20,7 +36,7 @@ gulp.task('watch', ['watch:rsync', 'watch:webpack'], function() {
 gulp.task('watch:webpack', function() {
   gulp.src(mapFiles(targetFiles))
           .pipe(named())
-          .pipe(webpack(getConfig({watch: true})))
+          .pipe(webpackStream(getConfig({watch: true})))
           .pipe(gulp.dest('dist/'))
 })
 
@@ -36,6 +52,7 @@ function mapFiles(list, extname) {
 function getConfig(opt) {
   var config = {
     module: {
+      cache: true,
       loaders: [
         {
           test: /\.vue$/,
@@ -65,7 +82,13 @@ function getConfig(opt) {
       loaders: {
         scss: 'vue-style-loader!css-loader!sass-loader'
       }
-    }
+    },
+    plugins: [
+      new webpack.optimize.OccurrenceOrderPlugin(),
+      new webpack.HotModuleReplacementPlugin(),
+      new webpack.NoErrorsPlugin(),
+      new FriendlyErrors()
+    ]
   }
   if (!opt) {
     return config
@@ -85,6 +108,7 @@ gulp.task('rsync', function() {
       exclude: exclude,
       include: ['*.min.js', '*.min.css'],
       recursive: true,
+      clean: true,
       times: true,
       update: true
     }))
