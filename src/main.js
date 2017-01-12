@@ -1,7 +1,10 @@
-//import Vue from 'vue'
-const Vue = require('vue')
+import Vue from 'vue'
+import App from './App'
 
 const app = new Vue({
   el: '#app',
-  template: '<div/>'
+  template: '<App/>',
+  components: {
+    App
+  }
 })

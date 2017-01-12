@@ -37,25 +37,34 @@ function getConfig(opt) {
   var config = {
     module: {
       loaders: [
-        { test: /\.vue$/, loader: 'vue',
+        { test: /\.vue$/,
+          loader: 'vue',
           options: {
             loaders: {
-              scss: 'vue-style-loader!css-loader!sass-loader',
-              sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
+              scss: 'vue-style-loader!css-loader!sass-loader'
             }
           }
         },
         {
+          test: /\.scss$/,
+          loaders: ["style-loader", "css-loader?sourceMap", "sass-loader?sourceMap"]
+        },
+        {
           test: /\.js$/,
-          loader: 'babel-loader',
           exclude: /(node_modules|bower_components)/,
+          loader: 'babel-loader',
           query: {
-            presets: ['es-2015', 'stage-0']
+            presets: ['es2015', 'stage-0']
           }
         }
       ]
+    }, devtool: 'source-map',
+    resolve: {
+      extensions: ['', '.js', '.vue', '.json'],
+      alias: {
+        'vue': 'vue/dist/vue.js'
+      }
     },
-    devtool: 'source-map'
   }
   if (!opt) {
     return config
