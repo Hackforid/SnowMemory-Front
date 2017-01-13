@@ -24,20 +24,28 @@ gulp.task("dev", ['watch'], function(callback) {
 });
 
 gulp.task('build:webpack', function () {
-  return gulp.src(mapFiles(targetFiles))
-          .pipe(named())
-          .pipe(webpackStream(getConfig()))
-          .pipe(gulp.dest('dist/'))
 })
 
 gulp.task('watch', ['watch:rsync', 'watch:webpack'], function() {
 })
 
 gulp.task('watch:webpack', function() {
-  gulp.src(mapFiles(targetFiles))
-          .pipe(named())
-          .pipe(webpackStream(getConfig({watch: true})))
-          .pipe(gulp.dest('dist/'))
+  const entry = {
+    entry: {
+      main: ["babel-regenerator-runtime", "./src/main.js"]
+    },
+    output: {
+      path: path.join(__dirname, "dist"),
+      filename: "[name].js"
+    },
+    watch: true
+  }
+  const compiler = webpack(getConfig(entry))
+  compiler.watch({
+    aggregateTimeout: 300,
+    poll: true
+  }, function(err, stats) {
+  })
 })
 
 gulp.task('watch:rsync', ['rsync'], function () {
@@ -66,7 +74,15 @@ function getConfig(opt) {
           test: /\.js$/,
           exclude: /(node_modules|bower_components)/,
           loader: 'babel-loader',
+          babelrc: false,
           query: {
+            cacheDirectory: true,
+            plugins: [
+              ["transform-runtime", {
+                "polyfill": false,
+                "regenerator": true
+              }]
+            ],
             presets: ['es2015', 'stage-0']
           }
         }
@@ -85,9 +101,12 @@ function getConfig(opt) {
     },
     plugins: [
       new webpack.optimize.OccurrenceOrderPlugin(),
-      new webpack.HotModuleReplacementPlugin(),
+      //new webpack.HotModuleReplacementPlugin(),
       new webpack.NoErrorsPlugin(),
       new FriendlyErrors()
+    ],
+    externals: [
+      /^babel-runtime/
     ]
   }
   if (!opt) {
