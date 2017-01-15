@@ -4,6 +4,5 @@
         "ecmascript"
     ],
     "plugins": {
-        "wxapp": {}
     }
 }
