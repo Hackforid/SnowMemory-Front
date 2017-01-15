@@ -87,10 +87,14 @@ export default {
       if (!this.username || !this.password) {
         return
       }
+      let user = null
       if (this.uiType == 'login') {
+        user = await login(this.username, this.password)
       } else {
-        const user = await register(this.username, this.password)
-        store.setAccessToken(user.access_token)
+        user = await register(this.username, this.password)
+      }
+      if (user && user.access_token) {
+        store.saveAuth(user.username, user.access_token)
         router.replace('timeline')
       }
     },
@@ -112,6 +116,20 @@ async function register(username, password) {
   })
   return resp.result
 }
+
+async function login(username, password) {
+  const pwd = passwordHash(password)
+  const resp = await requestAPI({
+    method: 'POST',
+    url: '/api/auth',
+    data: {
+      username,
+      password: pwd,
+    }
+  })
+  return resp.result
+}
+
 
 function passwordHash(password) {
   return SHA256.sha256(password + 'tcfyNXf3Swg7erXPvBBYWWwCTuxDLP0NQYoN')

@@ -1,4 +1,5 @@
 const HOST = "http://127.0.0.1:9501"
+import * as store from './store'
 
 
 export function requestAPI(option) {
@@ -20,6 +21,11 @@ export function requestAPI(option) {
   }
   req.open(option.method, url)
   req.setRequestHeader('content-type', 'application/json')
+  const auth = store.getAuth()
+  if (auth) {
+    req.setRequestHeader("username", auth.username)
+    req.setRequestHeader("access_token", auth.accessToken)
+  }
   if (option.headers) {
     for (key in option.headers) {
       req.setRequestHeader(key, option.data[key])

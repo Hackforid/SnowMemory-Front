@@ -19,6 +19,7 @@
   left: 0;
   right: 0;
   height: 80px;
+  z-index: 1;
 
     .line {
       background-color: #ddd;
@@ -36,7 +37,6 @@
   position: relative;
 }
 </style>
-
 <script>
 
 import * as store from './utils/store'

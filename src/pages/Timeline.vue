@@ -24,19 +24,23 @@
 
 
 <style lang="scss">
+@import '../assets/css/common';
 .container {
   margin: 0 auto;
-  width: 640px;
-  margin-top: 80px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
 
   .new_post {
     box-sizing: border-box;
-    margin-top: 100px;
+    margin-top: 40px;
 
     display: flex;
     flex-direction: column;
     padding: 24px;
+    width: 100%;
 
     .post_input {
       display: flex;
@@ -146,6 +150,9 @@
 </style>
 
 <script>
+import {requestAPI} from '../utils/network'
+import * as store from '../utils/store'
+
 export default {
   name: 'timeline',
   data: function() {
@@ -241,6 +248,7 @@ function sendPost(content, photo) {
   }
   req.send(JSON.stringify(data))
   return requestAPIPromise(req)
+
 }
 
 function requestPromise(req) {
@@ -273,11 +281,9 @@ function requestAPIPromise(req) {
 }
 
 function getPosts() {
-  const req = new XMLHttpRequest()
-  const url = `http://127.0.0.1:9501/api/post`
-  req.open('GET', url)
-  req.send()
-  return requestAPIPromise(req)
+  return requestAPI({
+    url: '/api/post',
+  })
 }
 
 </script>
