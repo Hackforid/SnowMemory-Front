@@ -18,18 +18,25 @@ const baseConfig = {
       {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
-        loader: 'babel-loader',
+        loader: 'babel',
+        include: [
+          config.src
+        ],
         babelrc: false,
         query: {
           cacheDirectory: true,
           plugins: [
             ["transform-runtime", {
               "polyfill": false,
-              "regenerator": true
+              "regenerator": true,
             }]
           ],
           presets: ['es2015', 'stage-0']
         }
+      },
+      {
+        test: /\.json$/,
+        loader: 'json'
       },
     ]
   },
@@ -41,18 +48,15 @@ const baseConfig = {
   },
   vue: {
     loaders: {
-      scss: 'vue-style-loader!css-loader!sass-loader'
+      scss: 'vue-style-loader!css-loader!sass-loader',
     }
-  },
-  externals: [
-    /^babel-runtime/
-  ]
+  }
 }
 
 function getEntry() {
   const entry = {}
   manifest.js_files.forEach(e=>{
-    entry[e.name] = ['babel-regenerator-runtime', path.resolve(config.src, e.file)]
+    entry[e.name] = [path.resolve(config.src, e.file)]
   })
   return entry
 }

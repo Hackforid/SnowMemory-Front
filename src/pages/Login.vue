@@ -70,7 +70,7 @@
 </style>
 <script>
 import SHA256 from 'js-sha256'
-import {requestAPI} from '../utils/network'
+import {simpleRequest} from '../utils/network'
 import * as store from '../utils/store'
 import router from '../router'
 export default {
@@ -106,7 +106,7 @@ export default {
 
 async function register(username, password) {
   const pwd = passwordHash(password)
-  const resp = await requestAPI({
+  const resp = await simpleRequest({
     method: 'POST',
     url: '/api/register',
     data: {
@@ -114,12 +114,12 @@ async function register(username, password) {
       password: pwd,
     }
   })
-  return resp.result
+  return resp
 }
 
 async function login(username, password) {
   const pwd = passwordHash(password)
-  const resp = await requestAPI({
+  const resp = await simpleRequest({
     method: 'POST',
     url: '/api/auth',
     data: {
@@ -127,7 +127,7 @@ async function login(username, password) {
       password: pwd,
     }
   })
-  return resp.result
+  return resp
 }
 
 

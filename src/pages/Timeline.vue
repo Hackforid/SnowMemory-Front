@@ -13,10 +13,10 @@
     </div>
     <div class="card post" v-for="post of posts">
       <div class="post_header">
-        <span class="target">{{post.target.nickname}}</span>
+        <span class="target">{{post.target && post.target.nickname}}</span>
       </div>
       <img class="photo" :src="post.photos[0]"/>
-      <span class="author">@{{post.author.nickname}}</span>
+      <span class="author">@{{post.author && post.author.nickname}}</span>
     </div>
   </div>
 </template>
@@ -114,7 +114,7 @@
   .post {
     display: flex;
     flex-direction: column;
-
+    width: 100%;
     margin-top: 50px;
 
     .post_header {
@@ -150,23 +150,32 @@
 </style>
 
 <script>
-import {requestAPI} from '../utils/network'
+import {simpleRequest} from '../utils/network'
 import * as store from '../utils/store'
+import router from '../router'
 
 export default {
   name: 'timeline',
   data: function() {
     return {
-      message: "aaa",
+      message: "",
       image: '',
       file: '',
       posts: [],
     }
   },
+  computed: {
+    username() {
+      return localStorage.username
+    }
+  },
   created: async function() {
-    console.log("created")
+    if (!store.getAuth()) {
+      router.replace('login')
+      return
+    }
     const resp = await getPosts()
-    this.posts = resp.result.list
+    this.posts = resp.list
   },
   methods: {
     onFileChange(e) {
@@ -191,7 +200,7 @@ export default {
     },
     onClickSend(e) {
       const file = this.file
-      sendNewPost(this.message, file)
+      sendNewPost(this.message, file, this.username)
         .then(r=>{
           console.log(r)
         })
@@ -202,9 +211,9 @@ export default {
   }
 }
 
-async function sendNewPost(content, file) {
+async function sendNewPost(content, file, username) {
   const photo = await uploadImage(file)
-  const post = await sendPost(content, photo)
+  const post = await sendPost(content, photo, username)
   return post
 }
 
@@ -212,17 +221,19 @@ async function uploadImage(file) {
   const fileType = file.name.substring(file.name.lastIndexOf('.'))
   const key = 'photo_' + new Date().getTime() + fileType
   const tokenResp = await getUploadToken(key)
-  const token = tokenResp.result.token
+  const token = tokenResp.token
   const uploadResp = await uploadFile(key, token, file)
   return "http://ojgpsx1q3.bkt.clouddn.com/" + key
 }
 
 function getUploadToken(key) {
-  const req = new XMLHttpRequest()
-  const url = `http://127.0.0.1:9501/api/store/upload_token?filename=${key}`
-  req.open('GET', url)
-  req.send()
-  return requestAPIPromise(req)
+  return simpleRequest({
+    method: 'GET',
+    url: "/api/store/upload_token",
+    data: {
+      filename: key
+    }
+  })
 }
 
 function uploadFile(key, token, file) {
@@ -236,18 +247,17 @@ function uploadFile(key, token, file) {
   return requestPromise(req)
 }
 
-function sendPost(content, photo) {
-  const req = new XMLHttpRequest()
-  req.open('POST', 'http://127.0.0.1:9501/api/post')
-  req.setRequestHeader('content-type', 'application/json')
+function sendPost(content, photo, targetname) {
   const data = {
-    author_id: 1,
-    target_id: 1,
+    target_name: targetname,
     photos: [photo],
     content: content
   }
-  req.send(JSON.stringify(data))
-  return requestAPIPromise(req)
+  return simpleRequest({
+    method: 'POST',
+    url: '/api/post',
+    data: data
+  })
 
 }
 
@@ -281,7 +291,7 @@ function requestAPIPromise(req) {
 }
 
 function getPosts() {
-  return requestAPI({
+  return simpleRequest({
     url: '/api/post',
   })
 }

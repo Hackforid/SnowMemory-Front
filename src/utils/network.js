@@ -1,6 +1,23 @@
 const HOST = "http://127.0.0.1:9501"
 import * as store from './store'
+import router from '../router'
 
+export async function simpleRequest(option) {
+  let resp = null
+  let req = requestAPI(option)
+  try {
+    resp = await requestAPIPromise(req)
+  } catch(e) {
+    if (e.errcode == 3000) {
+      store.saveAuth(null, null)
+      router.post("login")
+      return
+    } else {
+      throw e
+    } 
+  }
+  return resp.result
+}
 
 export function requestAPI(option) {
   const req = new XMLHttpRequest()
@@ -10,9 +27,9 @@ export function requestAPI(option) {
   if (option.data) {
     if (option.method == 'GET' || option.method == 'DELETE') {
       if (!url.includes('?')) {
-        option.url += "?"
+        url += "?"
       }
-      for (key in option.data) {
+      for (var key in option.data) {
         url += `&${key}=${option.data[key]}`
       }
     } else {
@@ -27,7 +44,7 @@ export function requestAPI(option) {
     req.setRequestHeader("access_token", auth.accessToken)
   }
   if (option.headers) {
-    for (key in option.headers) {
+    for (var key in option.headers) {
       req.setRequestHeader(key, option.data[key])
     }
   }
@@ -36,7 +53,7 @@ export function requestAPI(option) {
   } else {
     req.send()
   }
-  return requestAPIPromise(req)
+  return req
 }
 
 function requestPromise(req) {
