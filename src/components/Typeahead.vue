@@ -5,7 +5,7 @@
            class="card-text-input"
            placeholder="Search twitter user"
            autocomplete="off"
-           @input="update"
+           @input="update($event.target.value)"
            list="cars"
            />
     <datalist id="cars">
@@ -26,7 +26,8 @@ export default {
     }
   },
   methods: {
-    update() {
+    update(val) {
+      this.$emit('valueUpdate', val)
     }
   }
 }

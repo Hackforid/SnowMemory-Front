@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="card new_post">
-      <typeahead class="target_input" :items="users"></typeahead>
+      <typeahead class="target_input" :items="users" @valueUpdate="targetNameUpdated"></typeahead>
       <div class="post_input">
         <input type="text" class="post_content" v-model="message" placeholder="type you message"></input>
         <span class="card file_uploader">
@@ -166,7 +166,8 @@ export default {
       image: '',
       file: '',
       posts: [],
-      users: []
+      users: [],
+      targetName: "",
     }
   },
   computed: {
@@ -205,13 +206,19 @@ export default {
     },
     onClickSend(e) {
       const file = this.file
-      sendNewPost(this.message, file, this.username)
+      if (!(this.message && file && this.targetName)) {
+        return
+      }
+      sendNewPost(this.message, file, this.targetName)
         .then(r=>{
           console.log(r)
         })
         .catch(e=>{
         console.error(e)
       })
+    },
+    targetNameUpdated(val) {
+      this.targetName = val
     }
   }
 }
