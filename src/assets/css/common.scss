@@ -3,3 +3,29 @@
   border-radius: 3px;
   background-color: #fff;
 }
+.card-text-input {
+  background: 0 0;
+  border: 1px solid #dbdbdb;
+  border-radius: 3px;
+  color: #262626;
+  font-size: 14px;
+  padding: 9px 8px 7px;
+  width: 100%
+}
+
+.card-btn {
+  box-sizing: content-box;
+  width: 100%;
+  line-height: 28px;
+  padding: 0 8px;
+  font-size: 16px;
+  curosr: pointer;
+  background: #3897f0;
+  color: #fff;
+  border-radius: 3px;
+  border: 1px solid #3897f0;
+  outline: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-sapce: nowrap;
+}

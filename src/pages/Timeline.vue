@@ -1,6 +1,7 @@
 <template>
   <div class="container">
     <div class="card new_post">
+      <typeahead class="target_input" :items="users"></typeahead>
       <div class="post_input">
         <input type="text" class="post_content" v-model="message" placeholder="type you message"></input>
         <span class="card file_uploader">
@@ -46,8 +47,7 @@
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: center;
-
+      justify-content: center; 
       .post_content {
         box-sizing: border-box;
         border: solid 1px #dbdbdb;
@@ -153,15 +153,20 @@
 import {simpleRequest} from '../utils/network'
 import * as store from '../utils/store'
 import router from '../router'
+import Typeahead from '../components/Typeahead'
 
 export default {
   name: 'timeline',
+  components: {
+    Typeahead
+  },
   data: function() {
     return {
       message: "",
       image: '',
       file: '',
       posts: [],
+      users: []
     }
   },
   computed: {
@@ -169,13 +174,13 @@ export default {
       return localStorage.username
     }
   },
-  created: async function() {
+  created: function() {
     if (!store.getAuth()) {
       router.replace('login')
       return
     }
-    const resp = await getPosts()
-    this.posts = resp.list
+    getPosts().then(r=>this.posts=r.list)
+    getUsers().then(r=>this.users=r.users.map(e=>e.username))
   },
   methods: {
     onFileChange(e) {
@@ -293,6 +298,12 @@ function requestAPIPromise(req) {
 function getPosts() {
   return simpleRequest({
     url: '/api/post',
+  })
+}
+
+function getUsers() {
+  return simpleRequest({
+    url: '/api/users',
   })
 }
 
