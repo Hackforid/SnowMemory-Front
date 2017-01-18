@@ -3,7 +3,7 @@
 
     <input type="text"
            class="card-text-input"
-           placeholder="Search twitter user"
+           placeholder="choose a user"
            autocomplete="off"
            @input="update"
            list="cars"
