@@ -1,7 +1,8 @@
 <template>
   <div class="container">
-    <div class="card new_post">
-      <typeahead class="target_input" :items="users" @valueUpdate="targetNameUpdated"></typeahead>
+    <div class="card new-post">
+      <span class="new-post-warning" v-if="newPostWarning">{{newPostWarning}}</span>
+      <typeahead class="target-input" :items="users" @valueUpdate="targetNameUpdated"></typeahead>
       <div class="post_input">
         <input type="text" class="post_content" v-model="message" placeholder="type you message"></input>
         <span class="card file_uploader">
@@ -12,13 +13,28 @@
       <img class="post_img" v-if="image" :src="image"/>
       <button class="post_send" v-if="image && message" @click="onClickSend">send</button>
     </div>
-    <div class="card post" v-for="post of posts">
+
+
+
+    <div class="card post" v-for="post of posts" :key="post.id">
       <div class="post_header">
-        <span class="target">{{post.target && post.target.nickname}}</span>
+        <img class="avatar" :src="post.target && post.target.avatar" /><span class="target">{{post.target && post.target.username}}</span>
       </div>
       <img class="photo" :src="post.photos[0]"/>
-      <span class="author">@{{post.author && post.author.nickname}}</span>
+      <div class="author-line">
+        <span class="author">@{{post.author && post.author.username}}</span>
+        <span class="author-comment">{{post.content}}</span>
+      </div>
+      <div class="comment-item" v-for="comment of post.comments">
+        <span class="comment-item-author"><b>{{comment.author.username}}</b></span>
+        <span class="comment-item-content">{{comment.content}}</span>
+      </div>
+      <div class="new-comment">
+        <input type="text" class="new-comment-input" placeholder="添加评论" @keyup.enter="newComment(post.id, $event.target.value)"></input>
+      </div>
     </div>
+
+
   </div>
 </template>
 
@@ -34,7 +50,7 @@
   align-items: center;
 
 
-  .new_post {
+  .new-post {
     box-sizing: border-box;
     margin-top: 40px;
 
@@ -43,11 +59,28 @@
     padding: 24px;
     width: 100%;
 
+    .target-input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .new-post-warning {
+      color: red;
+      font-size: 14px;
+      margin-bottom: 10px;
+      margin-left: 4px;
+    }
+
+    input::-webkit-calendar-picker-indicator {
+      display: none;
+    }
+
     .post_input {
       display: flex;
       flex-direction: row;
       align-items: center;
       justify-content: center; 
+      margin-top: 20px;
       .post_content {
         box-sizing: border-box;
         border: solid 1px #dbdbdb;
@@ -103,7 +136,7 @@
   }
 
   .post_img {
-    display: block;
+    display: block; 
     width: 100%;
     height: auto;
     margin-top: 25px;
@@ -116,16 +149,23 @@
     flex-direction: column;
     width: 100%;
     margin-top: 50px;
+    box-sizing: border-box;
 
     .post_header {
       height: 36px;
-      padding: 14px 20px;
+      padding: 14px 24px;
       display: flex;
       align-items: center;
 
+      .avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+      }
+
       .target {
         font-size: 16px;
-
+        margin-left: 18px;
       }
     }
     .photo {
@@ -138,11 +178,60 @@
       background-color: #edeeee;
     }
 
-    .author {
-      display: block;
-      align-self: flex-end;
+    .author-line {
       margin: 12px;
-      color: #ddd;
+      color: #262626;
+      font-size: 16px;
+      padding: 0;
+      margin: 24px;
+
+      .author {
+      }
+
+      .author-comment {
+
+      }
+    }
+
+    .new-comment {
+      box-sizing: border-box;
+      padding-top: 24px;
+      padding-bottom: 24px;
+      margin-left: 24px;
+      margin-right: 24px;
+      border-top: solid 1px #dbdbdb;
+
+      .new-comment-input {
+        width: 100%;
+        background: 0 0;
+        border: none;
+        outline: none;
+        color: #262626;
+        font-size: 14px;
+        line-height: 17px;
+      }
+    }
+
+    .comment-item {
+      box-sizing: border-box;
+      margin-left: 24px;
+      margin-right: 24px;
+      margin-bottom: 6px;
+
+      .comment-item-author {
+        color: #262626;
+        text-decoration: none;
+        font-size: 15px;
+        line-height: 18px;
+        font-weight: 600;
+      }
+
+      .comment-item-content {
+        color: #262626;
+        font-size: 14px;
+        line-height: 17px;
+        margin-left: 10px;
+      }
     }
   }
 }
@@ -168,6 +257,7 @@ export default {
       posts: [],
       users: [],
       targetName: "",
+      newPostWarning: "",
     }
   },
   computed: {
@@ -206,7 +296,16 @@ export default {
     },
     onClickSend(e) {
       const file = this.file
-      if (!(this.message && file && this.targetName)) {
+      if (!this.file) {
+        this.newPostWarning = "请选择需要发布的图片"
+        return
+      }
+      if (!this.targetName) {
+        this.newPostWarning = "请选择图片的主人"
+        return
+      }
+      if (!this.message) {
+        this.newPostWarning = "请输入描述"
         return
       }
       sendNewPost(this.message, file, this.targetName)
@@ -219,6 +318,9 @@ export default {
     },
     targetNameUpdated(val) {
       this.targetName = val
+    },
+    newComment(postId, content) {
+      postComment(postId, content)
     }
   }
 }
@@ -311,6 +413,16 @@ function getPosts() {
 function getUsers() {
   return simpleRequest({
     url: '/api/users',
+  })
+}
+
+function postComment(postId, content) {
+  return simpleRequest({
+    method: 'POST',
+    url: `/api/post/${postId}/comment`,
+    data: {
+      content: content
+    }
   })
 }
 

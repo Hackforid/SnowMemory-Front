@@ -37,4 +37,7 @@ export default {
 
 <style lang="scss">
 @import '../assets/css/common';
+input {
+  box-sizing: border-box;
+}
 </style>
