@@ -2,19 +2,17 @@
   <div class="container">
     <div class="card new-post">
       <span class="new-post-warning" v-if="newPostWarning">{{newPostWarning}}</span>
-      <typeahead class="target-input" :items="users" @valueUpdate="targetNameUpdated"></typeahead>
       <div class="post_input">
-        <input type="text" class="post_content" v-model="message" placeholder="type you message"></input>
+        <typeahead class="target-input" :items="users" @valueUpdate="targetNameUpdated"></typeahead>
         <span class="card file_uploader">
           +
           <input class="post_file" @change="onFileChange" type="file" name="pic" id="pic" accept="image/gif, image/jpeg, image/png" />
         </span>
       </div>
       <img class="post_img" v-if="image" :src="image"/>
-      <button class="post_send" v-if="image && message" @click="onClickSend">send</button>
+      <input type="text" class="post_content" v-if="image" v-model="message" placeholder="type you message"></input>
+      <button class="post_send" v-if="image " @click="onClickSend">send</button>
     </div>
-
-
 
     <div class="card post" v-for="post of posts" :key="post.id">
       <div class="post_header">

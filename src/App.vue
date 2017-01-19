@@ -1,8 +1,6 @@
 <template>
   <div>
-    <div class="navigation">
-      <div class="line"/>
-    </div>
+    <Navigation/>
     <div class="root">
       <router-view></router-view>
     </div>
@@ -12,23 +10,6 @@
 
 
 <style lang="scss">
-.navigation {
-  background-color: #fff;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 80px;
-  z-index: 1;
-
-    .line {
-      background-color: #ddd;
-      height: 1px;
-      width: 100%;
-      position: absolute;
-      bottom: 0;
-    }
-}
 
 .root {
   margin: 0 auto;
@@ -41,9 +22,13 @@
 
 import * as store from './utils/store'
 import router from './router'
+import Navigation from './components/Navigation.vue'
 
 export default {
   name: 'app',
+  components: {
+    Navigation
+  },
   data () {
     return {
     }
