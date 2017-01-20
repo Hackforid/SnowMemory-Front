@@ -34,12 +34,12 @@ export default {
     }
   },
   created () {
-    console.log("created")
-    if (!store.getAccessToken()) {
-      router.push('login')
-    } else {
-      router.push('timeline')
-    }
+    //console.log("created")
+    //if (!store.getAccessToken()) {
+      //router.push('login')
+    //} else {
+      //router.push('timeline')
+    //}
   },
 }
 

@@ -7,6 +7,7 @@ import Login from './pages/Login.vue'
 import Timeline from './pages/Timeline.vue'
 
 const routes = [
+  { path: '/', redirect: '/timeline'},
   { path: '/login', name: 'login', component: Login},
   { path: '/timeline', name: 'timeline', component: Timeline},
 ]

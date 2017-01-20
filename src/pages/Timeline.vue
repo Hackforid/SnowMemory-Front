@@ -264,12 +264,19 @@ export default {
     }
   },
   created: function() {
+    console.log('created')
     if (!store.getAuth()) {
       router.replace('login')
       return
     }
     getPosts().then(r=>this.posts=r.list)
     getUsers().then(r=>this.users=r.users.map(e=>e.username))
+  },
+  beforeMount() {
+    console.log('before mount')
+  },
+  mounted() {
+    console.log('mount')
   },
   methods: {
     onFileChange(e) {
