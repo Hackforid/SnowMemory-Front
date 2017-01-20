@@ -10,7 +10,7 @@ export async function simpleRequest(option) {
   } catch(e) {
     if (e.errcode == 3000) {
       store.saveAuth(null, null)
-      router.post("login")
+      router.push("login")
       return
     } else {
       throw e

@@ -2,7 +2,13 @@
 <div class="navigation">
   <div class="line"/>
   <div class="nav-container">
-    <span>发照片</span>
+    <div class="nav-left">
+    </div>
+    <div class="nav-center">
+    </div>
+    <div class="nav-right">
+      <span class="post-photo">发照片</span>
+    </div>
   </div>
 </div>
 </template>
@@ -41,5 +47,22 @@ export default {
       position: absolute;
       bottom: 0;
     }
+  .nav-container {
+    margin: 0 auto;
+    height: 100%;
+    max-width: 900px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    .nav-left {
+      flex: 1 0 0%;
+    }
+
+    .nav-right {
+    }
+  }
 }
 </style>
