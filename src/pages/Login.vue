@@ -1,8 +1,15 @@
 <template>
   <div class="container">
     <div class="card login-box">
-        <input type="text" name="username" id="username" class="card-text-input" placeholder="Username" v-model="username"/>
-        <input type="password" name="password" id="password" class="card-text-input" placeholder="Password" v-model="password"/>
+        <span class="login-error" v-if="error">{{error}}</span>
+        <input type="text" name="email" id="email" class="card-text-input login-input" placeholder="Email" v-model="email" v-if="uiType != 'login'"/>
+        <div class="verify-code-box" v-if="uiType != 'login'">
+          <input type="text" name="code" id="code" class="card-text-input login-input" placeholder="验证码" v-model="code" />
+          <span class="send-verify-code-btn" @click="sendVerifyCode" v-if="!isWaitingSendVerifyCode">发送验证码</span>
+          <img class="send-verify-code-progress" src="/static/img/loading_circle_progress.gif" v-if="isWaitingSendVerifyCode"/>
+        </div>
+        <input type="text" name="username" id="username" class="card-text-input login-input" placeholder="用户名" v-model="username"/>
+        <input type="password" name="password" id="password" class="card-text-input login-input" placeholder="密码" v-model="password"/>
         <button class="btn-login card-btn" type="submit" @click="onLogin">{{ uiType == 'login' ? 'Login' : 'Register'}}</button>
         <span class="btn-ui-type" @click="changeUIType">{{ uiType == 'login' ? 'Register' : 'Login'}}</span>
     </div>
@@ -24,7 +31,7 @@
   padding: 24px;
   width: 400px;
 
-  input#password {
+  .login-input {
     margin-top: 10px;
   }
 
@@ -40,6 +47,36 @@
     margin-top: 12px;
   }
 
+  .verify-code-box {
+    width: 100%;
+    position: relative;
+    .send-verify-code-btn {
+      position: absolute;
+      top: 50%;
+      font-size: 12px;
+      color: #3897f0;
+      right: 10px;
+      cursor: pointer;
+    }
+
+    .send-verify-code-progress {
+      position: absolute;
+      top: 50%;
+      font-size: 12px;
+      color: #3897f0;
+      right: 30px;
+      cursor: pointer;
+      width: 12px;
+      height: 12px;
+    }
+  }
+  .login-error {
+    color: red;
+    font-size: 14px;
+    margin-left: 4px;
+    align-self: flex-start;
+  }
+
 }
 </style>
 <script>
@@ -47,14 +84,24 @@ import SHA256 from 'js-sha256'
 import {simpleRequest} from '../utils/network'
 import * as store from '../utils/store'
 import router from '../router'
+import { Notification } from 'element-ui'
+
 export default {
   name: 'login',
+  components: {
+  },
   data() {
     return {
       username: '',
       password: '',
-      uiType: 'login',
+      uiType: 'register',
+      email: '',
+      code: '',
+      error: '',
+      isWaitingSendVerifyCode: false,
     }
+  },
+  computed: {
   },
   methods: {
     async onLogin(e) {
@@ -65,20 +112,51 @@ export default {
       if (this.uiType == 'login') {
         user = await login(this.username, this.password)
       } else {
-        user = await register(this.username, this.password)
+        try {
+          user = await register(this.username, this.password, this.email, this.code)
+          this.error = ''
+        } catch(e) {
+          this.error = e.errmsg
+        }
       }
       if (user && user.access_token) {
-        store.saveAuth(user.username, user.access_token)
+        store.saveAuth(user.user.username, user.access_token)
         router.replace('timeline')
       }
     },
     changeUIType(e) {
       this.uiType = this.uiType == 'login' ? 'register' : 'login'
+    },
+    async sendVerifyCode() {
+      console.log('send code')
+      if (!this.email) {
+        this.error = "请填写邮箱"
+        return
+      }
+      try {
+        this.isWaitingSendVerifyCode = true
+        const resp = await sendVerifyCode(this.email)
+        this.error = ''
+        Notification({
+          title: '发送成功',
+          message: '请到注册邮箱查看验证码',
+          type: 'success',
+        });
+      } catch(e) {
+        this.error = e.errmsg
+        Notification({
+          title: '发送失败',
+          message: e.errmsg,
+          type: 'error',
+        });
+      } finally {
+        this.isWaitingSendVerifyCode = false
+      }
     }
   }
 }
 
-async function register(username, password) {
+async function register(username, password, email, code) {
   const pwd = passwordHash(password)
   const resp = await simpleRequest({
     method: 'POST',
@@ -86,6 +164,8 @@ async function register(username, password) {
     data: {
       username,
       password: pwd,
+      email: email,
+      code: code,
     }
   })
   return resp
@@ -100,6 +180,13 @@ async function login(username, password) {
       username,
       password: pwd,
     }
+  })
+  return resp
+}
+
+async function sendVerifyCode(email) {
+  const resp = await simpleRequest({
+    url: `/api/register?email=${email}`
   })
   return resp
 }

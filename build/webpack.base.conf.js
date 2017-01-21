@@ -12,6 +12,10 @@ const baseConfig = {
         loader: 'vue'
       },
       {
+        test: /\.css$/,
+        loader: 'style!css'
+      },
+      {
         test: /\.scss$/,
         loaders: ["style-loader", "css-loader?sourceMap", "sass-loader?sourceMap"]
       },
@@ -29,7 +33,13 @@ const baseConfig = {
             ["transform-runtime", {
               "polyfill": false,
               "regenerator": true,
-            }]
+            }],
+            ["component", [
+              {
+                "libraryName": "element-ui",
+                "styleLibraryName": "theme-default"
+              }
+            ]]
           ],
           presets: ['es2015', 'stage-0']
         }
@@ -37,6 +47,17 @@ const baseConfig = {
       {
         test: /\.json$/,
         loader: 'json'
+      },
+      {
+        test: /\.(eot|svg|ttf|woff|woff2)(\?\S*)?$/,
+        loader: 'file-loader'
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg)(\?\S*)?$/,
+        loader: 'file-loader',
+        query: {
+          name: '[name].[ext]?[hash]'
+        }
       },
     ]
   },
@@ -50,7 +71,7 @@ const baseConfig = {
     loaders: {
       scss: 'vue-style-loader!css-loader!sass-loader',
     }
-  }
+  },
 }
 
 function getEntry() {

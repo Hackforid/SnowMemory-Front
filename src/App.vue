@@ -16,6 +16,7 @@
   width: 640px;
   margin-top: 80px;
   position: relative;
+  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
 }
 </style>
 <script>
