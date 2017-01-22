@@ -15,15 +15,16 @@
         <span class="comment-item-content">{{comment.content}}</span>
       </div>
       <div class="new-comment">
-        <input type="text" class="new-comment-input" placeholder="添加评论" @keyup.enter="newComment(post.id, $event.target.value)"></input>
+        <input type="text" class="new-comment-input" placeholder="添加评论" :value="post.newComment" @keyup.enter="newComment(post, $event.target.value)"></input>
+        <img class="new-comment-loading-progress" src="/static/img/loading_circle_progress.gif" v-if="post.isSendingComment" />
       </div>
     </div>
     <el-dialog title="新的记忆" v-model="showPostDialog" size="small">
       <div class="new-post">
-        <span class="card file-uploader">
-          +挑选照片
+        <div class="card file-uploader">
+          <span>+挑选照片</span>
           <input class="post_file" @change="onFileChange" type="file" name="pic" id="pic" accept="image/gif, image/jpeg, image/png" />
-        </span>
+        </div>
         <img class="post-img" v-if="image" :src="image"/>
         <typeahead v-if="image" class="target-input" :items="users" @valueUpdate="targetNameUpdated"></typeahead>
         <input type="text" class="post-content" v-if="image" v-model="message" placeholder="描述"></input>
@@ -63,26 +64,25 @@
     .file-uploader {
       box-sizing: border-box;
       position: relative;
-      display: inline-block;
-      overflow: hidden;
       color: #1E88C7;
       text-decoration: none;
       text-indent: 0;
       text-align: center;
       font-size: 12px;
       line-height: 30px;
-      height: 30px;
+      min-height: 30px;
+
+      span {
+        position: absolute;
+        position: absolute; left: 50%; top: 50%;
+        transform: translate(-50%, -50%);
+      }
 
       input {
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 0;
-        bottom: 0;
-
+        width: 100%;
         opacity: 0;
         filter: alpha(opacity=0);
-        cursor: pointer
+        cursor: pointer;
       }
     }
 
@@ -119,7 +119,7 @@
   }
 
   .post-img {
-    display: block; 
+    display: block;
     width: 100%;
     height: auto;
     margin-top: 25px;
@@ -183,6 +183,7 @@
       margin-left: 24px;
       margin-right: 24px;
       border-top: solid 1px #dbdbdb;
+      position: relative;
 
       .new-comment-input {
         width: 100%;
@@ -192,6 +193,15 @@
         color: #262626;
         font-size: 14px;
         line-height: 17px;
+      }
+
+      .new-comment-loading-progress {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        height: 10px;
+        width: 10px;
+        transform: translate(0%, -50%);
       }
     }
 
@@ -222,6 +232,7 @@
 </style>
 
 <script>
+import Vue from 'vue'
 import {simpleRequest} from '../utils/network'
 import * as store from '../utils/store'
 import router from '../router'
@@ -263,6 +274,7 @@ export default {
     getUsers().then(r=>this.users=r.users.map(e=>e.username))
 
     bus.$on('onNewPostClick', this.showNewPostDialog)
+    window.addEventListener('scroll', this.handleScroll);
   },
   beforeMount() {
     console.log('before mount')
@@ -273,8 +285,14 @@ export default {
   destroyed() {
     console.log('destroyed')
     bus.$off('onNewPostClick', this.showNewPostDialog)
+    window.removeEventListener('scroll', this.handleScroll);
   },
   methods: {
+    handleScroll() {
+      if (getDocumentTop() + getWindowHeight() == getScrollHeight()) {
+        console.log('scrolled to bottom')
+      }
+    },
     showNewPostDialog() {
       console.log('new post')
       this.showPostDialog = true
@@ -314,6 +332,10 @@ export default {
         const postResp = await sendNewPost(this.message, this.file, this.targetName)
         this.showPostDialog = false
         this.posts.unshift(postResp.post)
+        this.file = null
+        this.message = null
+        this.targetName = null
+        this.image = null
       } catch(e) {
         this.newPostWarning = e.errmsg
       } finally {
@@ -324,8 +346,23 @@ export default {
     targetNameUpdated(val) {
       this.targetName = val
     },
-    newComment(postId, content) {
-      postComment(postId, content)
+    async newComment(post, content) {
+      const position = this.posts.findIndex(e=>{
+        return e.id == post.id;
+      })
+      post.newComment = content
+      try {
+        post.isSendingComment = true
+        Vue.set(this.posts, position, post)
+        const resp = await postComment(post, content)
+        post.comments.push(resp.comment)
+        post.newComment = ''
+      } catch(e) {
+        console.error(e)
+      } finally {
+        post.isSendingComment = false
+        Vue.set(this.posts, position, post)
+      }
     }
   }
 }
@@ -421,14 +458,51 @@ function getUsers() {
   })
 }
 
-function postComment(postId, content) {
+function postComment(post, content) {
   return simpleRequest({
     method: 'POST',
-    url: `/api/post/${postId}/comment`,
+    url: `/api/post/${post.id}/comment`,
     data: {
       content: content
     }
   })
+}
+
+//文档高度
+function getDocumentTop() {
+  var scrollTop = 0, bodyScrollTop = 0, documentScrollTop = 0;
+  if (document.body) {
+    bodyScrollTop = document.body.scrollTop;
+  }
+  if (document.documentElement) {
+    documentScrollTop = document.documentElement.scrollTop;
+  }
+  scrollTop = (bodyScrollTop - documentScrollTop > 0) ? bodyScrollTop : documentScrollTop;
+  return scrollTop;
+}
+
+//可视窗口高度
+function getWindowHeight() {
+  var windowHeight = 0;
+  if (document.compatMode == "CSS1Compat") {
+    windowHeight = document.documentElement.clientHeight;
+  } else {
+    windowHeight = document.body.clientHeight;
+  }
+  return windowHeight;
+}
+
+//滚动条滚动高度
+function getScrollHeight() {
+  var scrollHeight = 0, bodyScrollHeight = 0, documentScrollHeight = 0;
+  if (document.body) {
+    bodyScrollHeight = document.body.scrollHeight;
+  }
+  if (document.documentElement) {
+    documentScrollHeight = document.documentElement.scrollHeight;
+  }
+  scrollHeight = (bodyScrollHeight - documentScrollHeight > 0) ? bodyScrollHeight : documentScrollHeight;
+  return scrollHeight;
 }
 
 </script>
