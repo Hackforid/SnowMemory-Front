@@ -10,7 +10,7 @@
         </div>
         <input type="text" name="username" id="username" class="card-text-input login-input" placeholder="用户名" v-model="username"/>
         <input type="password" name="password" id="password" class="card-text-input login-input" placeholder="密码" v-model="password"/>
-        <button class="btn-login card-btn" type="submit" @click="onLogin">{{ uiType == 'login' ? 'Login' : 'Register'}}</button>
+        <ex-button class="btn-login" :status="loginBtnStatus" @click="onLogin">{{ uiType == 'login' ? 'Login' : 'Register'}}</ex-button>
         <span class="btn-ui-type" @click="changeUIType">{{ uiType == 'login' ? 'Register' : 'Login'}}</span>
     </div>
   </div>
@@ -52,7 +52,8 @@
     position: relative;
     .send-verify-code-btn {
       position: absolute;
-      top: 50%;
+      top: calc(50% - 1px);
+      line-height: 12px;
       font-size: 12px;
       color: #3897f0;
       right: 10px;
@@ -85,10 +86,12 @@ import {simpleRequest} from '../utils/network'
 import * as store from '../utils/store'
 import router from '../router'
 import { Notification } from 'element-ui'
+import ExButton from '../components/ExButton.vue'
 
 export default {
   name: 'login',
   components: {
+    ExButton,
   },
   data() {
     return {
@@ -99,6 +102,7 @@ export default {
       code: '',
       error: '',
       isWaitingSendVerifyCode: false,
+      loginBtnStatus: 'default',
     }
   },
   computed: {
@@ -110,13 +114,24 @@ export default {
       }
       let user = null
       if (this.uiType == 'login') {
-        user = await login(this.username, this.password)
+        try {
+          this.loginBtnStatus = 'loading'
+          user = await login(this.username, this.password)
+          this.error = ''
+        } catch(e) {
+          this.error = e.errmsg
+        } finally {
+          this.loginBtnStatus = 'default'
+        }
       } else {
         try {
+          this.loginBtnStatus = 'loading'
           user = await register(this.username, this.password, this.email, this.code)
           this.error = ''
         } catch(e) {
           this.error = e.errmsg
+        } finally {
+          this.loginBtnStatus = 'default'
         }
       }
       if (user && user.access_token) {

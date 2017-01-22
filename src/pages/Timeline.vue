@@ -1,18 +1,5 @@
 <template>
   <div class="container">
-    <div class="card new-post">
-      <span class="new-post-warning" v-if="newPostWarning">{{newPostWarning}}</span>
-      <div class="post_input">
-        <typeahead class="target-input" :items="users" @valueUpdate="targetNameUpdated"></typeahead>
-        <span class="card file_uploader">
-          +
-          <input class="post_file" @change="onFileChange" type="file" name="pic" id="pic" accept="image/gif, image/jpeg, image/png" />
-        </span>
-      </div>
-      <img class="post_img" v-if="image" :src="image"/>
-      <input type="text" class="post_content" v-if="image" v-model="message" placeholder="type you message"></input>
-      <button class="post_send" v-if="image " @click="onClickSend">send</button>
-    </div>
 
     <div class="card post" v-for="post of posts" :key="post.id">
       <div class="post_header">
@@ -31,6 +18,19 @@
         <input type="text" class="new-comment-input" placeholder="添加评论" @keyup.enter="newComment(post.id, $event.target.value)"></input>
       </div>
     </div>
+    <el-dialog title="新的记忆" v-model="showPostDialog" size="small">
+      <div class="new-post">
+        <span class="card file-uploader">
+          +挑选照片
+          <input class="post_file" @change="onFileChange" type="file" name="pic" id="pic" accept="image/gif, image/jpeg, image/png" />
+        </span>
+        <img class="post-img" v-if="image" :src="image"/>
+        <typeahead v-if="image" class="target-input" :items="users" @valueUpdate="targetNameUpdated"></typeahead>
+        <input type="text" class="post-content" v-if="image" v-model="message" placeholder="描述"></input>
+        <span class="new-post-warning" v-if="newPostWarning">{{newPostWarning}}</span>
+        <ex-button class="post-send" v-if="image" :status="sendPostBtnStatus" @click="onClickSend">发布</ex-button>
+      </div>
+    </el-dialog>
 
 
   </div>
@@ -50,16 +50,40 @@
 
   .new-post {
     box-sizing: border-box;
-    margin-top: 40px;
-
     display: flex;
     flex-direction: column;
-    padding: 24px;
     width: 100%;
+    box-sizing: border-box;
 
     .target-input {
       width: 100%;
       box-sizing: border-box;
+      margin-top: 20px;
+    }
+    .file-uploader {
+      box-sizing: border-box;
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+      color: #1E88C7;
+      text-decoration: none;
+      text-indent: 0;
+      text-align: center;
+      font-size: 12px;
+      line-height: 30px;
+      height: 30px;
+
+      input {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+
+        opacity: 0;
+        filter: alpha(opacity=0);
+        cursor: pointer
+      }
     }
 
     .new-post-warning {
@@ -67,73 +91,34 @@
       font-size: 14px;
       margin-bottom: 10px;
       margin-left: 4px;
+      margin-left: 12px;
+      margin-top: 12px;
     }
 
     input::-webkit-calendar-picker-indicator {
       display: none;
     }
 
-    .post_input {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center; 
-      margin-top: 20px;
-      .post_content {
-        box-sizing: border-box;
-        border: solid 1px #dbdbdb;
-        border-radius: 3px;
-        color: #262626;
-        outline: none;
-        font-size: 14px;
-        padding: 3px 10px 3px 10px;
-        min-height: 40px;
+    .post-content {
+      box-sizing: border-box;
+      border: solid 1px #dbdbdb;
+      border-radius: 3px;
+      color: #262626;
+      outline: none;
+      font-size: 14px;
+      padding: 3px 10px 3px 10px;
+      min-height: 40px;
+      margin-top: 12px;
 
-        flex-grow: 1;
-      }
-
-      .file_uploader {
-        position: relative;
-        display: inline-block;
-        padding: 4px 12px;
-        overflow: hidden;
-        color: #1E88C7;
-        text-decoration: none;
-        text-indent: 0;
-        text-align: center;
-        width: 30px;
-        height: 30px;
-        line-height: 30px;
-        margin-left: 10px;
-        border: solid 1px #dbdbdb;
-
-        flex-grow: 0;
-        input {
-          position: absolute;
-          left: 0;
-          right: 0;
-          top: 0;
-          bottom: 0;
-
-          opacity: 0;
-          filter: alpha(opacity=0);
-          cursor: pointer
-        }
-      }
+      flex-grow: 1;
     }
   }
 
-  .post_send {
+  .post-send {
     margin-top: 30px;
-    height: 30px;
-    border: solid 1px #dbdbdb;
-    border-radius: 5px;
-    background-color: white;
-    width: 50%;
-    align-self: center;
   }
 
-  .post_img {
+  .post-img {
     display: block; 
     width: 100%;
     height: auto;
@@ -241,11 +226,13 @@ import {simpleRequest} from '../utils/network'
 import * as store from '../utils/store'
 import router from '../router'
 import Typeahead from '../components/Typeahead'
+import ExButton from '../components/ExButton.vue'
+import bus from '../bus'
 
 export default {
   name: 'timeline',
   components: {
-    Typeahead
+    Typeahead, ExButton
   },
   data: function() {
     return {
@@ -256,6 +243,8 @@ export default {
       users: [],
       targetName: "",
       newPostWarning: "",
+      showPostDialog: false,
+      sendPostBtnStatus: 'default',
     }
   },
   computed: {
@@ -264,6 +253,7 @@ export default {
     }
   },
   created: function() {
+    const _ = this
     console.log('created')
     if (!store.getAuth()) {
       router.replace('login')
@@ -271,6 +261,8 @@ export default {
     }
     getPosts().then(r=>this.posts=r.list)
     getUsers().then(r=>this.users=r.users.map(e=>e.username))
+
+    bus.$on('onNewPostClick', this.showNewPostDialog)
   },
   beforeMount() {
     console.log('before mount')
@@ -278,7 +270,15 @@ export default {
   mounted() {
     console.log('mount')
   },
+  destroyed() {
+    console.log('destroyed')
+    bus.$off('onNewPostClick', this.showNewPostDialog)
+  },
   methods: {
+    showNewPostDialog() {
+      console.log('new post')
+      this.showPostDialog = true
+    },
     onFileChange(e) {
       var files = e.target.files || e.dataTransfer.files;
       if (!files.length)
@@ -299,8 +299,7 @@ export default {
       };
       reader.readAsDataURL(file);
     },
-    onClickSend(e) {
-      const file = this.file
+    async onClickSend(e) {
       if (!this.file) {
         this.newPostWarning = "请选择需要发布的图片"
         return
@@ -309,17 +308,18 @@ export default {
         this.newPostWarning = "请选择图片的主人"
         return
       }
-      if (!this.message) {
-        this.newPostWarning = "请输入描述"
-        return
+      this.newPostWarning = ''
+      try {
+        this.sendPostBtnStatus = 'loading'
+        const postResp = await sendNewPost(this.message, this.file, this.targetName)
+        this.showPostDialog = false
+        this.posts.unshift(postResp.post)
+      } catch(e) {
+        this.newPostWarning = e.errmsg
+      } finally {
+        this.sendPostBtnStatus = 'default'
       }
-      sendNewPost(this.message, file, this.targetName)
-        .then(r=>{
-          console.log(r)
-        })
-        .catch(e=>{
-        console.error(e)
-      })
+
     },
     targetNameUpdated(val) {
       this.targetName = val

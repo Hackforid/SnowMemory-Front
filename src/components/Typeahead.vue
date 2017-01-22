@@ -3,7 +3,7 @@
 
     <input type="text"
            class="card-text-input"
-           placeholder="choose a user"
+           placeholder="照片的主人是？"
            autocomplete="off"
            @input="update($event.target.value)"
            list="cars"

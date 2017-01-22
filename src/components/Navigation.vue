@@ -7,7 +7,7 @@
     <div class="nav-center">
     </div>
     <div class="nav-right">
-      <span class="post-photo">发照片</span>
+      <span class="post-photo" @click="onNewPostClick">发照片</span>
     </div>
   </div>
 </div>
@@ -16,6 +16,7 @@
 
 
 <script>
+import bus from '../bus'
 export default {
   name: 'navigation',
   data() {
@@ -23,6 +24,13 @@ export default {
     }
   },
   methods: {
+    onNewPostClick() {
+      bus.$emit('onNewPostClick')
+    }
+  },
+  created() {
+    bus.$on('showNewPostBtn', function() {
+    })
   }
 }
 </script>
