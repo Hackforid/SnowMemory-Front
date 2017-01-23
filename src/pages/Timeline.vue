@@ -10,7 +10,8 @@
         <span class="author">@{{post.author && post.author.username}}</span>
         <span class="author-comment">{{post.content}}</span>
       </div>
-      <div class="comment-item" v-for="comment of post.comments">
+      <span class="btn-more-comment" v-if="!post.showAllComments && post.comments.length > 5" @click="showAllComments(post.id)">全部 {{post.comments.length}} 条评论</span>
+      <div class="comment-item" v-for="comment of post.comments.length > 5 && !post.showAllComments ? post.comments.slice(post.comments.length - 5) : post.comments" :key="comment.id">
         <span class="comment-item-author"><b>{{comment.author.username}}</b></span>
         <span class="comment-item-content">{{comment.content}}</span>
       </div>
@@ -131,7 +132,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-top: 50px;
+    margin-top: 70px;
     box-sizing: border-box;
 
     .post_header {
@@ -154,7 +155,8 @@
     .photo {
       display: block;
       width: 100%;
-      height: auto;
+      /*height: 600px;*/
+      /*object-fit: contain;*/
       border-bottom: 1px solid #efefef;
       border-top: 1px solid #efefef;
       box-shadow: inset 0 0 20px 0 #efefef;
@@ -166,14 +168,24 @@
       color: #262626;
       font-size: 16px;
       padding: 0;
-      margin: 24px;
+      margin: 20px 24px 14px 23px;
 
       .author {
+        font-weight: bold;
       }
 
       .author-comment {
 
       }
+    }
+
+    .btn-more-comment {
+      margin-left: 24px;
+      margin-bottom: 3px;
+      font-size: 15px;
+      line-height: 18px;
+      cursor: pointer;
+      color: #999;
     }
 
     .new-comment {
@@ -341,6 +353,9 @@ export default {
       this.targetName = val
     },
     async newComment(post, content) {
+      if (!content.trim()) {
+        return
+      }
       const position = this.posts.findIndex(e=>{
         return e.id == post.id;
       })
@@ -349,6 +364,10 @@ export default {
         post.isSendingComment = true
         Vue.set(this.posts, position, post)
         const resp = await postComment(post, content)
+
+        if (post.comments.length <= 5) {
+          post.showAllComments = true
+        } 
         post.comments.push(resp.comment)
         post.newComment = ''
       } catch(e) {
@@ -357,6 +376,12 @@ export default {
         post.isSendingComment = false
         Vue.set(this.posts, position, post)
       }
+    },
+    showAllComments(id) {
+      const index = this.posts.findIndex(e=>{return e.id == id})
+      const post = this.posts[index]
+      post.showAllComments = true
+      Vue.set(this.posts, index, post)
     },
     async onLoadMorePost() {
       const start_id = this.posts[this.posts.length-1].id

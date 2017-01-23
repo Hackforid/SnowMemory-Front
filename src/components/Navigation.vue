@@ -3,6 +3,8 @@
   <div class="line"/>
   <div class="nav-container">
     <div class="nav-left">
+      <img class="logo" src="/static/img/logo.png"/>
+      <span class="logo-name">SnowMemory</span>
     </div>
     <div class="nav-center">
     </div>
@@ -58,7 +60,7 @@ export default {
   .nav-container {
     margin: 0 auto;
     height: 100%;
-    max-width: 900px;
+    max-width: 800px;
 
     display: flex;
     flex-direction: row;
@@ -67,9 +69,24 @@ export default {
 
     .nav-left {
       flex: 1 0 0%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
     }
 
     .nav-right {
+    }
+
+    .logo {
+      height: 45px;
+      width: 45px;
+    }
+
+    .logo-name {
+      font-size: 24px;
+      font-weight: bold;
+      color: black;
+      margin-left: 12px;
     }
   }
 }

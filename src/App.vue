@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="outer">
     <Navigation/>
     <div class="root">
       <router-view></router-view>
@@ -10,6 +10,10 @@
 
 
 <style lang="scss">
+
+.outer {
+  background-color: #fafafa;
+}
 
 .root {
   margin: 0 auto;
