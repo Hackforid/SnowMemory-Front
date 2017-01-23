@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <load-more-container class="container" @onLoadMore="onLoadMorePost" ref="postLoader">
 
     <div class="card post" v-for="post of posts" :key="post.id">
       <div class="post_header">
@@ -34,7 +34,7 @@
     </el-dialog>
 
 
-  </div>
+  </load-more-container>
 </template>
 
 
@@ -239,11 +239,12 @@ import router from '../router'
 import Typeahead from '../components/Typeahead'
 import ExButton from '../components/ExButton.vue'
 import bus from '../bus'
+import LoadMoreContainer from '../components/LoadMoreContainer.vue'
 
 export default {
   name: 'timeline',
   components: {
-    Typeahead, ExButton
+    Typeahead, ExButton, LoadMoreContainer,
   },
   data: function() {
     return {
@@ -270,11 +271,10 @@ export default {
       router.replace('login')
       return
     }
-    getPosts().then(r=>this.posts=r.list)
+    getPosts().then(r=>this.posts=r.posts)
     getUsers().then(r=>this.users=r.users.map(e=>e.username))
 
     bus.$on('onNewPostClick', this.showNewPostDialog)
-    window.addEventListener('scroll', this.handleScroll);
   },
   beforeMount() {
     console.log('before mount')
@@ -285,14 +285,8 @@ export default {
   destroyed() {
     console.log('destroyed')
     bus.$off('onNewPostClick', this.showNewPostDialog)
-    window.removeEventListener('scroll', this.handleScroll);
   },
   methods: {
-    handleScroll() {
-      if (getDocumentTop() + getWindowHeight() == getScrollHeight()) {
-        console.log('scrolled to bottom')
-      }
-    },
     showNewPostDialog() {
       console.log('new post')
       this.showPostDialog = true
@@ -362,6 +356,17 @@ export default {
       } finally {
         post.isSendingComment = false
         Vue.set(this.posts, position, post)
+      }
+    },
+    async onLoadMorePost() {
+      const start_id = this.posts[this.posts.length-1].id
+      try {
+        const resp = await getPosts(start_id, 5)
+        this.posts = this.posts.concat(resp.posts)
+      } catch(e) {
+        console.error(e)
+      } finally {
+        this.$refs.postLoader.stopLoading()
       }
     }
   }
@@ -446,9 +451,13 @@ function requestAPIPromise(req) {
   })
 }
 
-function getPosts() {
+function getPosts(start_id=-1, limit=5) {
   return simpleRequest({
     url: '/api/post',
+    data: {
+      start_id: start_id,
+      limit: limit,
+    }
   })
 }
 
@@ -468,41 +477,5 @@ function postComment(post, content) {
   })
 }
 
-//文档高度
-function getDocumentTop() {
-  var scrollTop = 0, bodyScrollTop = 0, documentScrollTop = 0;
-  if (document.body) {
-    bodyScrollTop = document.body.scrollTop;
-  }
-  if (document.documentElement) {
-    documentScrollTop = document.documentElement.scrollTop;
-  }
-  scrollTop = (bodyScrollTop - documentScrollTop > 0) ? bodyScrollTop : documentScrollTop;
-  return scrollTop;
-}
-
-//可视窗口高度
-function getWindowHeight() {
-  var windowHeight = 0;
-  if (document.compatMode == "CSS1Compat") {
-    windowHeight = document.documentElement.clientHeight;
-  } else {
-    windowHeight = document.body.clientHeight;
-  }
-  return windowHeight;
-}
-
-//滚动条滚动高度
-function getScrollHeight() {
-  var scrollHeight = 0, bodyScrollHeight = 0, documentScrollHeight = 0;
-  if (document.body) {
-    bodyScrollHeight = document.body.scrollHeight;
-  }
-  if (document.documentElement) {
-    documentScrollHeight = document.documentElement.scrollHeight;
-  }
-  scrollHeight = (bodyScrollHeight - documentScrollHeight > 0) ? bodyScrollHeight : documentScrollHeight;
-  return scrollHeight;
-}
 
 </script>
