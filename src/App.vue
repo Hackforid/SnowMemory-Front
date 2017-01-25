@@ -11,7 +11,7 @@
 
 <style lang="scss">
 
-.outer {
+body {
   background-color: #fafafa;
 }
 
