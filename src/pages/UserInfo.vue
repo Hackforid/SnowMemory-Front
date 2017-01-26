@@ -12,6 +12,7 @@
   </div>
   <div class="post-photos" v-if="userinfo && userinfo.posts">
     <div class="post-photo" v-for="post in userinfo.posts">
+      <img :src="post.photos[0]"/>
     </div>
 
   </div>
@@ -25,16 +26,16 @@
 
 }
 .info {
-  width: 100%;
+  width: 700px;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  margin: 0 auto;
 
-  padding-top: 80px;
+  padding-top: 50px;
 
   .info-avatar {
-    width: 90px;
-    height: 90px;
+    width: 150px;
+    height: 150px;
     img {
       height: 100%;
       width: 100%;
@@ -47,8 +48,8 @@
     color: black;
     .info-username {
       display: block;
-      font-size: 26px;
-      font-weight: bold;
+      font-size: 34px;
+      font-weight: 300;
     }
 
     .info-email {
@@ -60,7 +61,7 @@
     .info-photo-num {
       display: block;
       font-size: 26px;
-      margin-top: 10px;
+      margin-top: 16px;
 
       .info-photo-num-unit {
         color: #ddd;
@@ -76,14 +77,26 @@
   display: flex;
   flex-flow : row wrap;
   justify-content: space-around;
+  margin-top: 50px;
 
   .post-photo {
     background-color: blue;
     width: 30%;
     height: 0px;
     padding-top: 30%;
-    margin-top: 12px;
+    margin-top: 22px;
     position: relative;
+
+    img {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      object-fit: cover;
+      height: 100%;
+      width: 100%;
+    }
   }
 
 
