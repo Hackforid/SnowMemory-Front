@@ -1,7 +1,7 @@
 <template>
   <load-more-container class="container" @onLoadMore="onLoadMorePost" ref="postLoader">
 
-    <div class="card post" v-for="post of posts" :key="post.id">
+    <div class="card post" v-for="post of posts" >
       <div class="post_header">
         <img class="avatar" :src="post.target && post.target.avatar" /><span class="target">{{post.target && post.target.username}}</span>
       </div>
@@ -11,7 +11,7 @@
         <span class="author-comment">{{post.content}}</span>
       </div>
       <span class="btn-more-comment" v-if="!post.showAllComments && post.comments.length > 5" @click="showAllComments(post.id)">全部 {{post.comments.length}} 条评论</span>
-      <div class="comment-item" v-for="comment of post.comments.length > 5 && !post.showAllComments ? post.comments.slice(post.comments.length - 5) : post.comments" :key="comment.id">
+      <div class="comment-item" v-for="comment of post.comments.length > 5 && !post.showAllComments ? post.comments.slice(post.comments.length - 5) : post.comments" >
         <span class="comment-item-author"><b>{{comment.author.username}}</b></span>
         <span class="comment-item-content">{{comment.content}}</span>
         <span class="comment-item-delete" @click="onDeleteComment(comment)" v-if="comment.author.username == username">x</span>
@@ -311,7 +311,6 @@ export default {
   },
   methods: {
     async onDeleteComment(comment) {
-      console.log(comment)
       try {
         await deleteComment(comment.post_id, comment.id)
       } catch(e) {
@@ -319,11 +318,10 @@ export default {
         return
       }
       const postIndex = this.posts.findIndex(e=>{
-        return e.id == post.id;
+        return e.id == comment.post_id;
       })
       const post = this.posts[postIndex]
       post.comments = post.comments.filter(i=>i.id != comment.id)
-      Vue.set(this.posts, postIndex, post)
     },
     showNewPostDialog() {
       console.log('new post')
