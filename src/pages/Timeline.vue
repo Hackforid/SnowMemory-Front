@@ -14,6 +14,7 @@
       <div class="comment-item" v-for="comment of post.comments.length > 5 && !post.showAllComments ? post.comments.slice(post.comments.length - 5) : post.comments" :key="comment.id">
         <span class="comment-item-author"><b>{{comment.author.username}}</b></span>
         <span class="comment-item-content">{{comment.content}}</span>
+        <span class="comment-item-delete" @click="onDeleteComment(comment)" v-if="comment.author.username == username">x</span>
       </div>
       <div class="new-comment">
         <input type="text" class="new-comment-input" placeholder="添加评论" :value="post.newComment" @keyup.enter="newComment(post, $event.target.value)"></input>
@@ -222,10 +223,12 @@
       margin-left: 24px;
       margin-right: 24px;
       margin-bottom: 6px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
 
       .comment-item-author {
         color: #262626;
-        text-decoration: none;
         font-size: 15px;
         line-height: 18px;
         font-weight: 600;
@@ -233,9 +236,17 @@
 
       .comment-item-content {
         color: #262626;
+        padding-top: 1px;
         font-size: 14px;
-        line-height: 17px;
+        line-height: 18px;
         margin-left: 10px;
+        flex-grow: 1;
+      }
+
+      .comment-item-delete {
+        color: #c7c7c7;
+        cursor: pointer;
+        font-size: 15px;
       }
     }
   }
@@ -299,6 +310,21 @@ export default {
     bus.$off('onNewPostClick', this.showNewPostDialog)
   },
   methods: {
+    async onDeleteComment(comment) {
+      console.log(comment)
+      try {
+        await deleteComment(comment.post_id, comment.id)
+      } catch(e) {
+        console.error(e)
+        return
+      }
+      const postIndex = this.posts.findIndex(e=>{
+        return e.id == post.id;
+      })
+      const post = this.posts[postIndex]
+      post.comments = post.comments.filter(i=>i.id != comment.id)
+      Vue.set(this.posts, postIndex, post)
+    },
     showNewPostDialog() {
       console.log('new post')
       this.showPostDialog = true
@@ -499,6 +525,13 @@ function postComment(post, content) {
     data: {
       content: content
     }
+  })
+}
+
+function deleteComment(postId, commentId) {
+  return simpleRequest({
+    method: 'DELETE',
+    url: `/api/post/${postId}/comment/${commentId}`
   })
 }
 

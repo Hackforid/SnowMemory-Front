@@ -210,5 +210,5 @@ async function sendVerifyCode(email) {
 function passwordHash(password) {
   return SHA256.sha256(password + 'tcfyNXf3Swg7erXPvBBYWWwCTuxDLP0NQYoN')
 }
-  </script>
+</script>
 
