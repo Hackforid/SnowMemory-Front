@@ -4,15 +4,15 @@ import Vue from 'vue'
 const install = function(Vue, options={}) {
   const confirmConstructor = Vue.extend(Confirm)
   let confirmInstance = null
-  return new Promise((resolve, reject) => {
-    Vue.prototype.$confirm = function(config) {
+  Vue.prototype.$confirm = function(config) {
+    return new Promise((resolve, reject) => {
       confirmInstance = new confirmConstructor({
         el: document.createElement('div'),
         data: function() {
           return {
-            title: options.title,
-            content: options.content,
-            showCancel: options.showCancel || true
+            title: config.title,
+            content: config.content,
+            showCancel: config.showCancel || true
           }
         },
         methods: {
@@ -31,8 +31,8 @@ const install = function(Vue, options={}) {
         }
       })
       document.body.appendChild(confirmInstance.$el)
-    }
-  })
+    })
+  }
 }
 
 export default {

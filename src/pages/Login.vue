@@ -85,8 +85,8 @@ import SHA256 from 'js-sha256'
 import {simpleRequest} from '../utils/network'
 import * as store from '../utils/store'
 import router from '../router'
-import { Notification } from 'element-ui'
 import ExButton from '../components/ExButton.vue'
+import { Message } from 'element-ui'
 
 export default {
   name: 'login',
@@ -152,18 +152,16 @@ export default {
         this.isWaitingSendVerifyCode = true
         const resp = await sendVerifyCode(this.email)
         this.error = ''
-        Notification({
-          title: '发送成功',
-          message: '请到注册邮箱查看验证码',
-          type: 'success',
-        });
+        Message({
+          message: '发送成功,请到注册邮箱查看验证码',
+          type: 'success'
+        })
       } catch(e) {
         this.error = e.errmsg
-        Notification({
-          title: '发送失败',
-          message: e.errmsg,
-          type: 'error',
-        });
+        Message({
+          message: '发送失败',
+          type: 'error'
+        })
       } finally {
         this.isWaitingSendVerifyCode = false
       }
