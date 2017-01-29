@@ -298,6 +298,9 @@ export default {
     getUsers().then(r=>this.users=r.users.map(e=>e.username))
 
     bus.$on('onNewPostClick', this.showNewPostDialog)
+    this.$confirm({
+      title: 'title'
+    })
   },
   beforeMount() {
     console.log('before mount')
