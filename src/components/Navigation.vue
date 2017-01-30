@@ -3,13 +3,14 @@
   <div class="line"/>
   <div class="nav-container">
     <div class="nav-left">
-      <img class="logo" src="/static/img/logo.png"/>
-      <span class="logo-name">SnowMemory</span>
+      <img class="logo" src="/static/img/logo.png" @click="gotoIndex"/>
+      <span class="logo-name" @click="gotoIndex">SnowMemory</span>
     </div>
     <div class="nav-center">
     </div>
     <div class="nav-right">
-      <span class="post-photo" @click="onNewPostClick">发照片</span>
+      <span class="post-photo" @click="onNewPostClick" v-if="showPostBtn">发照片</span>
+      <img class="right-logo user-logo" src="/static/img/user.png" v-if="username" @click="gotoUserInfo"/>
     </div>
   </div>
 </div>
@@ -19,16 +20,37 @@
 
 <script>
 import bus from '../bus'
+import router from '../router'
 export default {
   name: 'navigation',
   data() {
     return {
     }
   },
+  computed: {
+    username() {
+      return localStorage.username
+    },
+    showPostBtn() {
+      console.log(this.$route)
+      return this.$route.name == 'timeline'
+    }
+  },
   methods: {
     onNewPostClick() {
       bus.$emit('onNewPostClick')
-    }
+    },
+    gotoUserInfo() {
+      router.push({
+        name: 'userinfo',
+        params: {username: this.username}
+      })
+    },
+    gotoIndex() {
+      router.push({
+        name: 'timeline',
+      })
+    },
   },
   created() {
     bus.$on('showNewPostBtn', function() {
@@ -75,11 +97,15 @@ export default {
     }
 
     .nav-right {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
     }
 
     .logo {
       height: 45px;
       width: 45px;
+      cursor: pointer;
     }
 
     .logo-name {
@@ -87,6 +113,14 @@ export default {
       font-weight: bold;
       color: black;
       margin-left: 12px;
+      cursor: pointer;
+    }
+
+    .right-logo {
+      height: 20px;
+      width: 20px;
+      margin-left: 20px;
+      cursor: pointer;
     }
   }
 }

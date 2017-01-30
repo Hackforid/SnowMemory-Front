@@ -5,7 +5,10 @@
       <img class="info-avatar-img" :src="userinfo && userinfo.user && userinfo.user.avatar"/>
     </div>
     <div class="info-detail">
-      <span class="info-username">{{userinfo && userinfo.user && userinfo.user.username}}</span>
+      <div class="info-username-box">
+        <span class="info-username">{{userinfo && userinfo.user && userinfo.user.username}}</span>
+        <span class="info-edit" @click="gotoAccount" v-if="username == currentUsername">编辑资料</span>
+      </div>
       <span class="info-email">{{userinfo && userinfo.user && userinfo.user.email}}</span>
       <span class="info-photo-num">{{userinfo && userinfo.posts ? userinfo.posts.length : 0 }}<span class="info-photo-num-unit">张</span> </span>
     </div>
@@ -46,10 +49,25 @@
   .info-detail {
     margin-left: 50px;
     color: black;
-    .info-username {
-      display: block;
-      font-size: 34px;
-      font-weight: 300;
+    .info-username-box {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      .info-username {
+        font-size: 34px;
+        font-weight: 300;
+        padding: 0px;
+      }
+      .info-edit {
+        font-size: 16px;
+        border: 1px solid #999;
+        border-radius: 3px;
+        color: #999;
+        padding: 3px 10px;
+        cursor: pointer;
+        margin-top: 6px;
+        margin-left: 12px;
+      }
     }
 
     .info-email {
@@ -107,6 +125,7 @@
 <script>
 import {simpleRequest} from '../utils/network'
 import LoadMoreContainer from '../components/LoadMoreContainer.vue'
+import router from '../router'
 
 export default {
   name: 'userinfo',
@@ -118,6 +137,12 @@ export default {
     }
   },
   computed: {
+    username() {
+      return this.$route.params.username
+    },
+    currentUsername() {
+      return localStorage.username
+    }
   },
   created() {
     this.showUserInfo()
@@ -130,6 +155,11 @@ export default {
         console.error(e)
       }
     },
+    gotoAccount() {
+      router.push({
+        name: 'account'
+      })
+    }
   }
 
 }
