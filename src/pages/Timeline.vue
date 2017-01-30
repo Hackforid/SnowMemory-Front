@@ -1,33 +1,7 @@
 <template>
   <load-more-container class="container" @onLoadMore="onLoadMorePost" ref="postLoader">
+    <Post :post="post" @deleted="onPostDeleted"  v-for="post of posts"/>
 
-    <div class="card post" v-for="post of posts" >
-      <div class="post_header">
-        <img class="avatar" :src="post.target && post.target.avatar" @click="gotoUserInfo(post.target.username)" /><span @click="gotoUserInfo(post.target.username)" class="target">{{post.target && post.target.username}}</span>
-        <span class="created-time">{{post.createdTime}}</span>
-      </div>
-      <img class="photo" :src="post.photos[0]"/>
-      <div class="author-line">
-        <span class="author" @click="gotoUserInfo(post.author.username)">@{{post.author && post.author.username}}</span>
-        <span class="author-comment">{{post.content}}</span>
-      </div>
-      <span class="btn-more-comment" v-if="!post.showAllComments && post.comments.length > 5" @click="showAllComments(post.id)">全部 {{post.comments.length}} 条评论</span>
-      <div class="comment-item" v-for="comment of post.comments.length > 5 && !post.showAllComments ? post.comments.slice(post.comments.length - 5) : post.comments" >
-        <span class="comment-item-author" @click="gotoUserInfo(comment.author.username)"><b>{{comment.author.username}}</b></span>
-        <span class="comment-item-content">{{comment.content}}</span>
-        <span class="comment-item-delete" @click="onDeleteComment(comment)" v-if="comment.author.username == username">x</span>
-      </div>
-      <div class="new-comment">
-        <input type="text" class="new-comment-input" placeholder="添加评论" :value="post.newComment" @keyup.enter="newComment(post, $event.target.value)"></input>
-        <img class="new-comment-loading-progress" src="/static/img/loading_circle_progress.gif" v-if="post.isSendingComment" />
-        <el-dropdown trigger="click" v-if="post.author.username == username" @command="handlePostCommand">
-          <img class="new-comment-more" src="/static/img/post-more.png"/>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item :command="'delete_' + post.id">删除</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-      </div>
-    </div>
     <el-dialog title="新的记忆" v-model="showPostDialog" size="small">
       <div class="new-post">
         <div class="card file-uploader">
@@ -135,148 +109,6 @@
     box-shadow: 3px 3px 10px #ccc;
     border: 1px solid #ccc;
   }
-
-  .post {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    margin-top: 70px;
-    box-sizing: border-box;
-
-    .post_header {
-      height: 36px;
-      padding: 14px 24px;
-      display: flex;
-      align-items: center;
-
-      .avatar {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        cursor: pointer;
-      }
-
-      .target {
-        font-size: 16px;
-        margin-left: 18px;
-        flex-grow: 1;
-        cursor: pointer;
-      }
-
-      .created-time {
-        font-size: 15px;
-        color: #999;
-      }
-    }
-    .photo {
-      display: block;
-      width: 100%;
-      /*height: 600px;*/
-      /*object-fit: contain;*/
-      border-bottom: 1px solid #efefef;
-      border-top: 1px solid #efefef;
-      box-shadow: inset 0 0 20px 0 #efefef;
-      background-color: #edeeee;
-    }
-
-    .author-line {
-      margin: 12px;
-      color: #262626;
-      font-size: 16px;
-      padding: 0;
-      margin: 20px 24px 14px 23px;
-
-      .author {
-        font-weight: bold;
-        cursor: pointer;
-      }
-
-      .author-comment {
-
-      }
-    }
-
-    .btn-more-comment {
-      margin-left: 24px;
-      margin-bottom: 3px;
-      font-size: 15px;
-      line-height: 18px;
-      cursor: pointer;
-      color: #999;
-    }
-
-    .new-comment {
-      box-sizing: border-box;
-      padding-top: 24px;
-      padding-bottom: 24px;
-      margin-left: 24px;
-      margin-right: 24px;
-      margin-top: 12px;
-      border-top: solid 1px #efefef;
-      position: relative;
-
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-
-
-      .new-comment-input {
-        width: 100%;
-        background: 0 0;
-        border: none;
-        outline: none;
-        color: #262626;
-        font-size: 14px;
-        line-height: 17px;
-        flex-grow: 1;
-      }
-
-      .new-comment-loading-progress {
-        height: 10px;
-        width: 10px;
-        margin-right: 10px;
-      }
-
-      .new-comment-more {
-        height: 24px;
-        width: 24px;
-        cursor: pointer;
-      }
-    }
-
-    .comment-item {
-      box-sizing: border-box;
-      margin-left: 24px;
-      margin-right: 24px;
-      margin-bottom: 6px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-
-      .comment-item-author {
-        color: #262626;
-        font-size: 15px;
-        line-height: 18px;
-        font-weight: 600;
-        cursor: pointer;
-      }
-
-      .comment-item-content {
-        color: #262626;
-        padding-top: 1px;
-        font-size: 14px;
-        line-height: 18px;
-        margin-left: 10px;
-        flex-grow: 1;
-      }
-
-      .comment-item-delete {
-        color: #c7c7c7;
-        cursor: pointer;
-        font-size: 15px;
-      }
-    }
-  }
 }
 
 </style>
@@ -291,11 +123,12 @@ import ExButton from '../components/ExButton.vue'
 import bus from '../bus'
 import LoadMoreContainer from '../components/LoadMoreContainer.vue'
 import { Message } from 'element-ui'
+import Post from '../components/Post.vue'
 
 export default {
   name: 'timeline',
   components: {
-    Typeahead, ExButton, LoadMoreContainer,
+    Typeahead, ExButton, LoadMoreContainer, Post
   },
   data: function() {
     return {
@@ -315,12 +148,8 @@ export default {
       return localStorage.username
     }
   },
-  route: {
-    data() {
-      console.log('timeline route')
-    }
-  },
   created: function() {
+    console.log('created')
     const _ = this
     if (!store.getAuth()) {
       router.replace('login')
@@ -336,22 +165,6 @@ export default {
     bus.$off('onNewPostClick', this.showNewPostDialog)
   },
   methods: {
-    async onDeleteComment(comment) {
-      await this.$confirm({
-        content: '确认删除该评论？'
-      })
-      try {
-        await deleteComment(comment.post_id, comment.id)
-      } catch(e) {
-        console.error(e)
-        return
-      }
-      const postIndex = this.posts.findIndex(e=>{
-        return e.id == comment.post_id;
-      })
-      const post = this.posts[postIndex]
-      post.comments = post.comments.filter(i=>i.id != comment.id)
-    },
     showNewPostDialog() {
       console.log('new post')
       this.showPostDialog = true
@@ -405,36 +218,6 @@ export default {
     targetNameUpdated(val) {
       this.targetName = val
     },
-    async newComment(post, content) {
-      if (!content.trim()) {
-        return
-      }
-      const position = this.posts.findIndex(e=>{
-        return e.id == post.id;
-      })
-      post.newComment = content
-      post.isSendingComment = true
-      try {
-        Vue.set(this.posts, position, post)
-        const resp = await postComment(post, content)
-
-        if (post.comments.length <= 5) {
-          post.showAllComments = true
-        } 
-        post.comments.push(resp.comment)
-        post.newComment = ''
-      } catch(e) {
-        console.error(e)
-      } finally {
-        post.isSendingComment = false
-      }
-    },
-    showAllComments(id) {
-      const index = this.posts.findIndex(e=>{return e.id == id})
-      const post = this.posts[index]
-      post.showAllComments = true
-      Vue.set(this.posts, index, post)
-    },
     async onLoadMorePost() {
       const start_id = this.posts[this.posts.length-1].id
       try {
@@ -470,14 +253,9 @@ export default {
         })
       }
     },
-    handlePostCommand(command) {
-      const _commands = command.split('_')
-      switch(_commands[0]) {
-        case 'delete':
-          this.deletePost(_commands[1])
-          break;
-      }
-     }
+    onPostDeleted(postId) {
+      this.posts = this.posts.filter(post=>post.id != postId)
+    }
   }
 }
 
@@ -569,34 +347,7 @@ async function getPosts(start_id=-1, limit=5) {
     }
   })
 
-  handlePosts(resp.posts)
   return resp
-}
-
-function handlePosts(posts) {
-  const now = new Date()
-  posts.forEach(post=>{
-    const date = new Date(post.created_at)
-    const interval = now - date
-    const mintes = parseInt(interval / (1000 * 60))
-    if (mintes < 60) {
-      post.createdTime = `${mintes}分钟`
-      return
-    }
-    const hours = parseInt(mintes / 60)
-    if (hours < 24) {
-      post.createdTime = `${hours}小时`
-      return
-    }
-
-    const days = parseInt(hours / 24)
-    if (days < 7) {
-      post.createdTime = `${days}天`
-      return
-    }
-
-    post.createdTime = post.created_at.substring(0, 10)
-  })
 }
 
 function getUsers() {
@@ -605,28 +356,7 @@ function getUsers() {
   })
 }
 
-function postComment(post, content) {
-  return simpleRequest({
-    method: 'POST',
-    url: `/api/post/${post.id}/comment`,
-    data: {
-      content: content
-    }
-  })
-}
 
-function deleteComment(postId, commentId) {
-  return simpleRequest({
-    method: 'DELETE',
-    url: `/api/post/${postId}/comment/${commentId}`
-  })
-}
 
-function deletePost(postId) {
-  return simpleRequest({
-    method: 'DELETE',
-    url: `/api/post/${postId}`
-  })
-}
 
 </script>
