@@ -32,7 +32,6 @@ export default {
       return localStorage.username
     },
     showPostBtn() {
-      console.log(this.$route)
       return this.$route.name == 'timeline'
     }
   },

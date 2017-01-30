@@ -2,7 +2,9 @@
   <div class="outer">
     <Navigation/>
     <div class="root">
-      <router-view></router-view>
+      <keep-alive>
+        <router-view></router-view>
+      </keep-alive>
     </div>
   </div>
 </template>

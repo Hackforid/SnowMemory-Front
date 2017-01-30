@@ -42,6 +42,7 @@ gulp.task('build', ['clean', 'rsync'], function() {
 gulp.task("dev", function(callback) {
   const express = require('express')
   const app = express()
+  const history = require('connect-history-api-fallback')
   const config = require('./build/webpack.dev.conf')
   console.log(JSON.stringify(config))
   const compiler = webpack(config)
@@ -63,6 +64,9 @@ gulp.task("dev", function(callback) {
 
   app.use(devMiddleware)
   app.use(hotMiddleware)
+  app.use(history({
+    index: '/'
+  }))
   app.use('/static', express.static('./src/static'))
 
   app.listen(8888, function (err) {

@@ -315,26 +315,24 @@ export default {
       return localStorage.username
     }
   },
+  route: {
+    data() {
+      console.log('timeline route')
+    }
+  },
   created: function() {
     const _ = this
-    console.log('created')
     if (!store.getAuth()) {
       router.replace('login')
       return
     }
-    getPosts().then(r=>this.posts=r.posts)
+
     getUsers().then(r=>this.users=r.users.map(e=>e.username))
+    getPosts().then(r=>this.posts=r.posts)
 
     bus.$on('onNewPostClick', this.showNewPostDialog)
   },
-  beforeMount() {
-    console.log('before mount')
-  },
-  mounted() {
-    console.log('mount')
-  },
   destroyed() {
-    console.log('destroyed')
     bus.$off('onNewPostClick', this.showNewPostDialog)
   },
   methods: {
