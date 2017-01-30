@@ -11,6 +11,10 @@ export function saveAuth(username, accessToken) {
   localStorage.username = username
 }
 
+export function saveUsername(username) {
+  localStorage.username = username
+}
+
 export function getAuth() {
   const username = localStorage.username
   const accessToken = localStorage.accessToken

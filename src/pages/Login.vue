@@ -81,12 +81,12 @@
 }
 </style>
 <script>
-import SHA256 from 'js-sha256'
 import {simpleRequest} from '../utils/network'
 import * as store from '../utils/store'
 import router from '../router'
 import ExButton from '../components/ExButton.vue'
 import { Message } from 'element-ui'
+import { passwordHash } from '../utils/auth'
 
 export default {
   name: 'login',
@@ -205,8 +205,5 @@ async function sendVerifyCode(email) {
 }
 
 
-function passwordHash(password) {
-  return SHA256.sha256(password + 'tcfyNXf3Swg7erXPvBBYWWwCTuxDLP0NQYoN')
-}
 </script>
 

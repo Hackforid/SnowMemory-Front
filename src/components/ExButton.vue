@@ -1,7 +1,7 @@
 <template>
 <div class="button-box">
 
-  <button :class="{btn: true, disabled: btnStatus == 'loading'}" @click="onBtnClick">
+  <button :class="{btn: true, disabled: btnStatus == 'loading'}" :style="customStyle" @click="onBtnClick">
     <slot/>
   </button>
   <img class="progress" src="/static/img/loading_circle_progress.gif" v-if="btnStatus == 'loading'" />
@@ -13,7 +13,7 @@
 <script>
 export default {
   name: 'Button',
-  props: ['status'],
+  props: ['status', 'customStyle'],
   data() {
     return {
     }
@@ -47,7 +47,7 @@ export default {
   position: relative;
 
   .btn {
-  box-sizing: border-box;
+    box-sizing: border-box;
     width: 100%;
     min-height: 32px;
 
