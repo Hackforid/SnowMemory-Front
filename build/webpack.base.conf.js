@@ -6,28 +6,33 @@ const config = require('../config')
 
 const baseConfig = {
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.vue$/,
-        loader: 'vue'
+        loader: 'vue-loader',
+        options: {
+          loaders: {
+            scss: 'vue-style-loader!css-loader!sass-loader'
+          }
+        }
       },
       {
         test: /\.css$/,
-        loader: 'style!css'
+        use: [{loader:'style-loader'}, {loader:'css-loader'}]
       },
       {
         test: /\.scss$/,
-        loaders: ["style-loader", "css-loader?sourceMap", "sass-loader?sourceMap"]
+        use: ["style-loader", "css-loader?sourceMap", "sass-loader?sourceMap"]
       },
       {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
-        loader: 'babel',
+        loader: 'babel-loader',
         include: [
           config.src
         ],
-        babelrc: false,
-        query: {
+        options: {
+          babelrc: true,
           cacheDirectory: true,
           plugins: [
             ["transform-runtime", {
@@ -41,12 +46,8 @@ const baseConfig = {
               }
             ]]
           ],
-          presets: ['es2015', 'stage-0']
+          presets: [["es2015", { "modules": false }], 'stage-0']
         }
-      },
-      {
-        test: /\.json$/,
-        loader: 'json'
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2)(\?\S*)?$/,
@@ -55,21 +56,16 @@ const baseConfig = {
       {
         test: /\.(png|jpe?g|gif|svg)(\?\S*)?$/,
         loader: 'file-loader',
-        query: {
+        options: {
           name: '[name].[ext]?[hash]'
         }
       },
     ]
   },
   resolve: {
-    extensions: ['', '.js', '.vue', '.json'],
+    extensions: ['.js', '.vue', '.json'],
     alias: {
       'vue': 'vue/dist/vue.js',
-    }
-  },
-  vue: {
-    loaders: {
-      scss: 'vue-style-loader!css-loader!sass-loader',
     }
   },
 }

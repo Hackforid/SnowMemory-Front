@@ -33,8 +33,13 @@ gulp.task('clean', function () {
 
 gulp.task('build', ['clean', 'rsync'], function() {
   const conf = require('./build/webpack.prod.conf')
+  console.log(JSON.stringify(conf))
   webpack(conf).run((err, stats)=>{
-    console.log(err)
+    if (err || stats.hasErrors()) {
+      console.log(stats.toString({
+        colors: true
+      }))
+    }
   })
 })
 

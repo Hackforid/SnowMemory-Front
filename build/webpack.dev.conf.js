@@ -11,13 +11,11 @@ Object.keys(baseConfig.entry).forEach(function (name) {
 
 module.exports = merge(baseConfig, {
   module: {
-    cache: true,
   },
   devtool: 'source-map',
   plugins: [
-    new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoErrorsPlugin(),
+    new webpack.NoEmitOnErrorsPlugin(),
     new FriendlyErrors(),
   ],
 })
