@@ -8,6 +8,10 @@ import Timeline from './pages/Timeline.vue'
 import UserInfo from './pages/UserInfo.vue'
 import Account from './pages/Account.vue'
 import PostInfo from './pages/PostInfo.vue'
+//const PostInfo = resolve => {
+  //import('./pages/PostInfo.vue').then(module=>resolve(module.default))
+//}
+
 
 const routes = [
   { path: '/', redirect: '/timeline'},

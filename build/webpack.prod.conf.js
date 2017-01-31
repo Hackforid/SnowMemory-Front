@@ -5,5 +5,8 @@ const webpack = require('webpack')
 module.exports = merge(baseConfig, {
   plugins: [
     new webpack.optimize.UglifyJsPlugin(),
+    new webpack.LoaderOptionsPlugin({
++     minimize: true
++   }),
   ]
 })
