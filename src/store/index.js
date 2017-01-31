@@ -5,9 +5,13 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    newPostEvent: 0,
+    timelinePosts: [],
+    timelineScroll: 0,
   },
   mutations: {
+    setTimelinePosts(state, posts) {
+      state.timelinePosts = posts
+    }
   }
 })
 

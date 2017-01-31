@@ -15,7 +15,7 @@
   </div>
   <div class="post-photos" v-if="userinfo && userinfo.posts">
     <div class="post-photo" v-for="post in userinfo.posts">
-      <img :src="post.photos[0]"/>
+      <img :src="post.photos[0]" @click="gotoPostInfo(post.id)"/>
     </div>
 
   </div>
@@ -114,6 +114,7 @@
       object-fit: cover;
       height: 100%;
       width: 100%;
+      cursor: pointer;
     }
   }
 
@@ -126,9 +127,11 @@
 import {simpleRequest} from '../utils/network'
 import LoadMoreContainer from '../components/LoadMoreContainer.vue'
 import router from '../router'
+import {basePageMixin} from './base.js'
 
 export default {
   name: 'userinfo',
+  mixins: [basePageMixin],
   components: {
   },
   data: function() {
@@ -145,9 +148,12 @@ export default {
     }
   },
   created() {
-    this.showUserInfo()
+    this.initData()
   },
   methods: {
+    initData() {
+      this.showUserInfo()
+    },
     async showUserInfo() {
       try {
         this.userinfo = await getUserInfo(this.$route.params.username)
@@ -159,7 +165,13 @@ export default {
       router.push({
         name: 'account'
       })
-    }
+    },
+    gotoPostInfo(id) {
+      router.push({
+        name: 'postinfo',
+        params: {postId: id}
+      })
+    },
   }
 
 }

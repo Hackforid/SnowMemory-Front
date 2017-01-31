@@ -23,21 +23,16 @@ export default {
       post: null,
     }
   },
-  watch: {
-    '$route': 'getPost'
-  },
   created() {
     this.getPost()
   },
   methods: {
     async getPost() {
-      this.post = null
       const postId = this.$route.params.postId
       if (!postId) {
         return
       }
       const resp = await getPost(postId)
-      //window.scrollTo(0, 0)
       this.post = resp.post
     }
   }

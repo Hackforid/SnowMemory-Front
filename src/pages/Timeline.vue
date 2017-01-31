@@ -124,9 +124,11 @@ import bus from '../bus'
 import LoadMoreContainer from '../components/LoadMoreContainer.vue'
 import { Message } from 'element-ui'
 import Post from '../components/Post.vue'
+import {basePageMixin} from './base.js'
 
 export default {
   name: 'timeline',
+  mixins: [basePageMixin],
   components: {
     Typeahead, ExButton, LoadMoreContainer, Post
   },
@@ -135,8 +137,8 @@ export default {
       message: "",
       image: '',
       file: '',
-      posts: [],
       users: [],
+      posts: [],
       targetName: "",
       newPostWarning: "",
       showPostDialog: false,
@@ -146,7 +148,7 @@ export default {
   computed: {
     username() {
       return localStorage.username
-    }
+    },
   },
   created: function() {
     console.log('created')
@@ -157,7 +159,10 @@ export default {
     }
 
     getUsers().then(r=>this.users=r.users.map(e=>e.username))
-    getPosts().then(r=>this.posts=r.posts)
+
+    if (this.posts.length == 0) {
+      getPosts().then(r=>this.posts=r.posts)
+    }
 
     bus.$on('onNewPostClick', this.showNewPostDialog)
   },
