@@ -7,6 +7,7 @@
       <span class="logo-name" @click="gotoIndex">SnowMemory</span>
     </div>
     <div class="nav-center">
+      <typeahead class="search-input" :items="userOptions" placeholder="搜索" @enter="onSearch"></typeahead>
     </div>
     <div class="nav-right">
       <span class="post-photo" @click="onNewPostClick" v-if="showPostBtn">发照片</span>
@@ -21,10 +22,19 @@
 <script>
 import bus from '../bus'
 import router from '../router'
+import {simpleRequest} from '../utils/network'
+import Typeahead from '../components/Typeahead'
 export default {
   name: 'navigation',
+  components: {
+    Typeahead,
+  },
   data() {
     return {
+      options: [],
+      searchValue: '',
+      users: [],
+      userOptions: [],
     }
   },
   computed: {
@@ -35,7 +45,18 @@ export default {
       return this.$route.name == 'timeline'
     }
   },
+  created() {
+    this.initData()
+  },
   methods: {
+    async initData() {
+      try {
+        this.users = (await getUsers()).users
+        this.userOptions = this.users.map(e=>e.username)
+      } catch(e) {
+        console.error(e)
+      }
+    },
     onNewPostClick() {
       bus.$emit('onNewPostClick')
     },
@@ -50,12 +71,24 @@ export default {
         name: 'timeline',
       })
     },
+    onSearch(text) {
+      const user = this.users.find(i=>i.username == text)
+      if (user) {
+        router.push({
+          name: 'userinfo',
+          params: {username: text}
+        })
+      }
+    },
   },
-  created() {
-    bus.$on('showNewPostBtn', function() {
-    })
-  }
 }
+
+function getUsers() {
+  return simpleRequest({
+    url: '/api/users',
+  })
+}
+
 </script>
 
 
@@ -71,34 +104,47 @@ export default {
   height: 80px;
   z-index: 1;
 
-    .line {
-      background-color: #ddd;
-      height: 1px;
-      width: 100%;
-      position: absolute;
-      bottom: 0;
-    }
+  .line {
+    background-color: #ddd;
+    height: 1px;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+  }
   .nav-container {
     margin: 0 auto;
     height: 100%;
     max-width: 800px;
-
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
+    position: relative;
 
     .nav-left {
-      flex: 1 0 0%;
       display: flex;
       flex-direction: row;
       align-items: center;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
     }
 
     .nav-right {
       display: flex;
       flex-direction: row;
       align-items: center;
+      float: right;
+      height: 100%;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+
+    .nav-center {
+      height: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
     }
 
     .logo {
@@ -120,6 +166,14 @@ export default {
       width: 20px;
       margin-left: 20px;
       cursor: pointer;
+    }
+
+    .post-photo {
+      cursor: pointer;
+    }
+
+    .search-input{
+      width: 200px;
     }
   }
 }

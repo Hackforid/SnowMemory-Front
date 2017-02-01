@@ -3,12 +3,14 @@
 
     <input type="text"
            class="card-text-input"
-           placeholder="照片的主人是？"
+           :placeholder="placeholder"
            autocomplete="off"
            @input="update($event.target.value)"
-           list="cars"
+           list="options"
+           @keyup.enter="keyEnter"
+           v-model="text"
            />
-    <datalist id="cars">
+    <datalist id="options">
         <option v-for="item of items" :value="item">
     </datalist>
 
@@ -20,15 +22,19 @@
 <script>
 export default {
   name: 'typeahead',
-  props: ['items'],
+  props: ['items', 'placeholder'],
   data() {
     return {
+      text: "",
     }
   },
   methods: {
     update(val) {
       this.$emit('valueUpdate', val)
-    }
+    },
+    keyEnter() {
+      this.$emit('enter', this.text)
+    },
   }
 }
 </script>

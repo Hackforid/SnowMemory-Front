@@ -9,7 +9,7 @@
           <input class="post_file" @change="onFileChange" type="file" name="pic" id="pic" accept="image/gif, image/jpeg, image/png" />
         </div>
         <img class="post-img" v-if="image" :src="image"/>
-        <typeahead v-if="image" class="target-input" :items="users" @valueUpdate="targetNameUpdated"></typeahead>
+        <typeahead v-if="image" class="target-input" :items="users" @valueUpdate="targetNameUpdated" placeholder="照片的主人是?"></typeahead>
         <input type="text" class="post-content" v-if="image" v-model="message" placeholder="描述"></input>
         <span class="new-post-warning" v-if="newPostWarning">{{newPostWarning}}</span>
         <ex-button class="post-send" v-if="image" :status="sendPostBtnStatus" @click="onClickSend">发布</ex-button>
@@ -130,7 +130,7 @@ export default {
   name: 'timeline',
   mixins: [basePageMixin],
   components: {
-    Typeahead, ExButton, LoadMoreContainer, Post
+    Typeahead, ExButton, LoadMoreContainer, Post,
   },
   data: function() {
     return {
