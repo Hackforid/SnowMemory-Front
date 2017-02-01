@@ -1,14 +1,25 @@
 <template>
 <div class="account-container">
-  <div class="card userinfo-container category">
+  <div class="card avatar-container category">
+    <span class="category-title">头像</span>
+    <div class="form-item avatar">
+      <img class="form-content current-avatar" :src="image"/>
+      <div class="card file-uploader">
+        <span>+新头像</span>
+        <input class="post_file" @change="onFileChange" type="file" name="pic" id="pic" accept="image/gif, image/jpeg, image/png" />
+      </div>
+    </div>
+    <ex-button @click="onChangeAvatar" class="form-button" :custom-style="formButtonStyle" :status="changeAvatarButtonStatus" v-if="user.avatar != image">提交</ex-button>
+  </div>
+  <div class="card userinfo-container category category-margin">
     <span class="category-title">设置</span>
     <div class="form-item">
       <span class="form-label">用户名</span>
-        <input type="text" class="form-input card-text-input"  v-model.trim="newUsername" placeholder="新用户名"></input>
+      <input type="text" class="form-input card-text-input"  v-model.trim="newUsername" placeholder="新用户名"></input>
     </div>
     <ex-button @click="onChangeUserInfo" class="form-button" :custom-style="formButtonStyle" :status="changeUsernameButtonStatus">提交</ex-button>
   </div>
-  <div class="card password-container category">
+  <div class="card password-container category category-margin">
     <span class="category-title">密码</span>
     <div class="form-item">
       <span class="form-label">当前密码</span>
@@ -78,7 +89,47 @@
 }
 
 .password-container {
+}
+
+.category-margin {
   margin-top: 30px;
+}
+
+.form-item.avatar {
+  flex-direction: column;
+  align-items: flex-start;
+  padding-left: 120px;
+  .current-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+  }
+}
+.file-uploader {
+  box-sizing: border-box;
+  position: relative;
+  color: #1E88C7;
+  text-decoration: none;
+  text-indent: 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 30px;
+  min-height: 30px;
+  width: 120px;
+  margin-top: 12px;
+
+  span {
+    position: absolute;
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  input {
+    width: 100%;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    cursor: pointer;
+  }
 }
 
 
@@ -86,7 +137,7 @@
 
 <script>
 import ExButton from '../components/ExButton.vue'
-import {simpleRequest} from '../utils/network'
+import {simpleRequest, uploadImage} from '../utils/network'
 import { Message } from 'element-ui'
 import * as store from '../utils/store'
 import { passwordHash } from '../utils/auth'
@@ -98,11 +149,15 @@ export default {
   },
   data: function() {
     return {
+      file: null,
+      image: null,
+      user: {},
       newUsername: null,
       oldPassword: null,
       newPassword: null,
       changePasswordButtonStatus: 'default',
       changeUsernameButtonStatus: 'default',
+      changeAvatarButtonStatus: 'default',
       formButtonStyle: {
         color: '#262626',
         'border-color': '#262626',
@@ -110,7 +165,14 @@ export default {
       },
     }
   },
+  created() {
+    this.initData()
+  },
   methods: {
+    async initData() {
+      this.user = (await getUserInfo(localStorage.username)).user
+      this.image = this.user.avatar
+    },
     async onChangeUserInfo() {
       if (!this.newUsername || !this.newUsername.trim()) {
         return
@@ -161,6 +223,48 @@ export default {
       }
       this.changePasswordButtonStatus = 'default'
     },
+    onFileChange(e) {
+      var files = e.target.files || e.dataTransfer.files;
+      if (!files.length)
+        return;
+      var files = e.target.files || e.dataTransfer.files;
+      if (!files.length)
+        return;
+      this.file = files[0]
+      this.createImage(files[0]);
+    },
+    createImage(file) {
+      var image = new Image();
+      var reader = new FileReader();
+      var vm = this;
+
+      reader.onload = (e) => {
+        vm.image = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
+    async onChangeAvatar() {
+      if (!this.image || this.image == this.user.avatar) {
+        return
+      }
+      this.changeAvatarButtonStatus = 'loading'
+      try {
+        const photo = await uploadImage(this.file)
+        const resp = await changeAvatar(photo)
+        Message({
+          message: '修改成功',
+          type: 'success'
+        })
+        this.user = resp.user
+      } catch(e) {
+        Message({
+          message: '修改失败 ' + e.errmsg,
+          type: 'error'
+        })
+      }
+
+      this.changeAvatarButtonStatus = 'default'
+    },
   },
 }
 
@@ -186,4 +290,21 @@ function changePassword(oldPwd, newPwd) {
     }
   })
 }
+
+function getUserInfo(username) {
+  return simpleRequest({
+    url: `/api/user/${username}/info`
+  })
+}
+
+function changeAvatar(avatar) {
+  return simpleRequest({
+    url: '/api/account/edit/avatar',
+    method: 'PUT',
+    data: {
+      avatar
+    }
+  })
+}
+
 </script>

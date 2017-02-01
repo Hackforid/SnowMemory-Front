@@ -1,7 +1,7 @@
 <template>
 <div class="card post">
   <div class="post_header">
-    <img class="avatar" :src="post.target && post.target.avatar" @click="gotoUserInfo(post.target.username)" /><span @click="gotoUserInfo(post.target.username)" class="target">{{post.target && post.target.username}}</span>
+    <img class="avatar" :src="post.target && post.target.avatar ? (post.target.avatar + '-tiny') : '/static/img/logo.png'" @click="gotoUserInfo(post.target.username)" /><span @click="gotoUserInfo(post.target.username)" class="target">{{post.target && post.target.username}}</span>
     <span class="created-time">{{post.createdTime}}</span>
   </div>
   <img class="photo" :src="post.photos[0]" @click="gotoPostInfo()"/>

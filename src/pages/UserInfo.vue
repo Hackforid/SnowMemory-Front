@@ -178,7 +178,10 @@ export default {
 
 function getUserInfo(username) {
   return simpleRequest({
-    url: `/api/user/${username}/info`
+    url: `/api/user/${username}/info`,
+    data: {
+      with_post: 1
+    }
   })
 }
 

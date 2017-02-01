@@ -9,7 +9,9 @@ export const basePageMixin = {
     }
   },
   beforeRouteLeave (to, from, next) {
-    this.$route.meta[this.historyKey] = this.$data
+    if (this) {
+      this.$route.meta[this.historyKey] = this.$data
+    }
     next()
   },
 }

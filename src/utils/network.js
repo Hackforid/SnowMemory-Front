@@ -84,3 +84,34 @@ function requestAPIPromise(req) {
     })
   })
 }
+
+export async function uploadImage(file) {
+  const fileType = file.name.substring(file.name.lastIndexOf('.'))
+  const key = 'photo_' + new Date().getTime() + fileType
+  const tokenResp = await getUploadToken(key)
+  const token = tokenResp.token
+  const uploadResp = await uploadFile(key, token, file)
+  return "http://ojgpsx1q3.bkt.clouddn.com/" + key
+}
+
+function getUploadToken(key) {
+  return simpleRequest({
+    method: 'GET',
+    url: "/api/store/upload_token",
+    data: {
+      filename: key
+    }
+  })
+}
+
+function uploadFile(key, token, file) {
+  const req = new XMLHttpRequest()
+  const data = new FormData()
+  data.append("key", key)
+  data.append("token", token)
+  data.append("file", file)
+  req.open('POST', 'http://up-z1.qiniu.com')
+  req.send(data)
+  return requestPromise(req)
+}
+

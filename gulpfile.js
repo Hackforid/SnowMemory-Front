@@ -49,7 +49,6 @@ gulp.task("dev", function(callback) {
   const app = express()
   const history = require('connect-history-api-fallback')
   const config = require('./build/webpack.dev.conf')
-  console.log(JSON.stringify(config))
   const compiler = webpack(config)
   var devMiddleware = require('webpack-dev-middleware')(compiler, {
     publicPath: config.output.publicPath,
@@ -67,12 +66,12 @@ gulp.task("dev", function(callback) {
     })
   })
 
+  app.use('/static', express.static('./src/static'))
+  app.use(history({
+    index: '/',
+  }))
   app.use(devMiddleware)
   app.use(hotMiddleware)
-  app.use(history({
-    index: '/'
-  }))
-  app.use('/static', express.static('./src/static'))
 
   app.listen(8888, function (err) {
     if (err) {
