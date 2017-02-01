@@ -39,7 +39,7 @@ export default {
   },
   computed: {
     username() {
-      return localStorage.username
+      return this.$store.state.username
     },
     showPostBtn() {
       return this.$route.name == 'timeline'

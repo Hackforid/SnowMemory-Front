@@ -1,3 +1,4 @@
+import store from '../store'
 export function getAccessToken() {
   return localStorage.accessToken
 }
@@ -9,10 +10,7 @@ export function setAccessToken(accessToken) {
 export function saveAuth(username, accessToken) {
   localStorage.accessToken = accessToken
   localStorage.username = username
-}
-
-export function saveUsername(username) {
-  localStorage.username = username
+  store.commit('setUsername', username)
 }
 
 export function getAuth() {

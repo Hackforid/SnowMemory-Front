@@ -5,12 +5,11 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    timelinePosts: [],
-    timelineScroll: 0,
+    username: localStorage.username,
   },
   mutations: {
-    setTimelinePosts(state, posts) {
-      state.timelinePosts = posts
+    setUsername(state, username) {
+      state.username = username
     }
   }
 })
