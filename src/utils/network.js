@@ -1,4 +1,5 @@
-const HOST = "http://127.0.0.1:9501"
+//const HOST = "http://127.0.0.1:9501"
+const HOST = "http://snow.smilehacker.com"
 import * as store from './store'
 import router from '../router'
 
