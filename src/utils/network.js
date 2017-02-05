@@ -42,7 +42,7 @@ export function requestAPI(option) {
   const auth = store.getAuth()
   if (auth) {
     req.setRequestHeader("username", auth.username)
-    req.setRequestHeader("access_token", auth.accessToken)
+    req.setRequestHeader("Authorization", auth.accessToken)
   }
   if (option.headers) {
     for (var key in option.headers) {
