@@ -4,7 +4,7 @@
     <img class="avatar" :src="post.target && post.target.avatar ? (post.target.avatar + '-tiny') : '/static/img/logo.png'" @click="gotoUserInfo(post.target.username)" /><span @click="gotoUserInfo(post.target.username)" class="target">{{post.target && post.target.username}}</span>
     <span class="created-time">{{post.createdTime}}</span>
   </div>
-  <img class="photo" :src="post.photos[0]" @click="gotoPostInfo()"/>
+  <img class="photo" :src="post.photos[0] + '-normal'" @click="gotoPostInfo()"/>
   <div class="author-line">
     <span class="author" @click="gotoUserInfo(post.author.username)">@{{post.author && post.author.username}}</span>
     <span class="author-comment">{{post.content}}</span>
@@ -314,7 +314,12 @@ function computeCreatedTime(createdAt) {
     return `${days}天`
   }
 
-  return createdAt.substring(0, 10)
+  try {
+    return createdAt.substring(0, 10)
+  } catch(e) {
+    console.error(e)
+  }
+  return createdAt
 }
 
 

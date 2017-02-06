@@ -39,6 +39,7 @@ export default {
   },
   computed: {
     username() {
+      this.getUsers()
       return this.$store.state.username
     },
     showPostBtn() {
@@ -50,12 +51,6 @@ export default {
   },
   methods: {
     async initData() {
-      try {
-        this.users = (await getUsers()).users
-        this.userOptions = this.users.map(e=>e.username)
-      } catch(e) {
-        console.error(e)
-      }
     },
     onNewPostClick() {
       bus.$emit('onNewPostClick')
@@ -79,6 +74,10 @@ export default {
           params: {username: text}
         })
       }
+    },
+    async getUsers() {
+      const users = (await getUsers()).users
+      this.userOptions = users.map(e=>e.username)
     },
   },
 }

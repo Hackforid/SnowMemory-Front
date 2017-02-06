@@ -9,7 +9,7 @@
           <input class="post_file" @change="onFileChange" type="file" name="pic" id="pic" accept="image/gif, image/jpeg, image/png" />
         </div>
         <img class="post-img" v-if="image" :src="image"/>
-        <typeahead v-if="image" class="target-input" :items="users" @valueUpdate="targetNameUpdated" placeholder="照片的主人是?"></typeahead>
+        <typeahead v-if="image" class="target-input" :items="userOptions" @valueUpdate="targetNameUpdated" placeholder="照片的主人是?"></typeahead>
         <input type="text" class="post-content" v-if="image" v-model="message" placeholder="描述"></input>
         <span class="new-post-warning" v-if="newPostWarning">{{newPostWarning}}</span>
         <ex-button class="post-send" v-if="image" :status="sendPostBtnStatus" @click="onClickSend">发布</ex-button>
@@ -137,7 +137,7 @@ export default {
       message: "",
       image: '',
       file: '',
-      users: [],
+      userOptions: [],
       posts: [],
       targetName: "",
       newPostWarning: "",
@@ -147,18 +147,16 @@ export default {
   },
   computed: {
     username() {
-      return localStorage.username
+      this.getUsers()
+      return this.$store.state.username
     },
   },
   created: function() {
-    console.log('created')
     const _ = this
     if (!store.getAuth()) {
       router.replace('login')
       return
     }
-
-    getUsers().then(r=>this.users=r.users.map(e=>e.username))
 
     if (this.posts.length == 0) {
       getPosts().then(r=>this.posts=r.posts)
@@ -170,6 +168,10 @@ export default {
     bus.$off('onNewPostClick', this.showNewPostDialog)
   },
   methods: {
+    async getUsers() {
+      const users = (await getUsers()).users
+      this.userOptions = users.map(e=>e.username)
+    },
     showNewPostDialog() {
       console.log('new post')
       this.showPostDialog = true
