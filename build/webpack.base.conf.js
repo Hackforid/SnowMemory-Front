@@ -3,6 +3,7 @@ const merge = require('webpack-merge')
 const path = require('path')
 const manifest = require('../config/manifest')
 const config = require('../config')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 const baseConfig = {
   module: {
@@ -64,10 +65,14 @@ const baseConfig = {
   },
   resolve: {
     extensions: ['.js', '.vue', '.json'],
-    alias: {
-      'vue': 'vue/dist/vue.js',
-    }
   },
+  plugins: [
+    new ExtractTextPlugin({
+      filename: "bundle.css",
+      disable: false,
+      allChunks: true,
+    }),
+  ]
 }
 
 function getEntry() {
