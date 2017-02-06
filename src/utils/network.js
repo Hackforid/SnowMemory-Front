@@ -6,8 +6,7 @@ import router from '../router'
 export async function simpleRequest(option) {
   let resp = null
   let req = requestAPI(option)
-  try {
-    resp = await requestAPIPromise(req)
+  try { resp = await requestAPIPromise(req)
   } catch(e) {
     if (e.errcode == 3000) {
       store.saveAuth(null, null)

@@ -6,21 +6,33 @@ const config = require('../config')
 const path = require('path')
 const CompressionWebpackPlugin = require('compression-webpack-plugin')
 
+class CDNPlugin {
+  apply(compiler) {
+    compiler.plugin('compilation', function(compilation) {
+
+    compilation.plugin('html-webpack-plugin-after-html-processing', function(htmlPluginData, callback) {
+      let html = htmlPluginData.html
+      html = html.replace(/(src=")(.*?\.js)(")/g, "$1//ojgpsx1q3.bkt.clouddn.com$2$3")
+      htmlPluginData.html = html
+      callback(null, htmlPluginData);
+    });
+  });
+  }
+}
+
 module.exports = merge(baseConfig, {
   resolve: {
     alias: {
       'vue$': 'vue/dist/vue.common.js'
     }
-  },
-  module: {
+  }, module: {
     rules: [
     ],
   },
   plugins: [
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: '"production"'
-      }
+        NODE_ENV: '"production"' }
     }),
     new webpack.optimize.UglifyJsPlugin({
       comments: false, 
@@ -37,5 +49,6 @@ module.exports = merge(baseConfig, {
         threshold: 10240,
         minRatio: 0.8
     }),
+    new CDNPlugin(),
   ]
 })

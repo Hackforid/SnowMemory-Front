@@ -98,7 +98,6 @@
   margin-top: 50px;
 
   .post-photo {
-    background-color: blue;
     width: 30%;
     height: 0px;
     padding-top: 30%;

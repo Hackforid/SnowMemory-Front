@@ -115,7 +115,7 @@
 
 <script>
 import Vue from 'vue'
-import {simpleRequest} from '../utils/network'
+import {simpleRequest, uploadImage} from '../utils/network'
 import * as store from '../utils/store'
 import router from '../router'
 import Typeahead from '../components/Typeahead'
@@ -202,7 +202,7 @@ export default {
         return
       }
       if (!this.targetName) {
-        this.newPostWarning = "请选择图片的主人"
+        this.newPostWarning = "你拍的谁？"
         return
       }
       this.newPostWarning = ''
@@ -272,36 +272,6 @@ async function sendNewPost(content, file, username) {
   return post
 }
 
-async function uploadImage(file) {
-  const fileType = file.name.substring(file.name.lastIndexOf('.'))
-  const key = 'photo_' + new Date().getTime() + fileType
-  const tokenResp = await getUploadToken(key)
-  const token = tokenResp.token
-  const uploadResp = await uploadFile(key, token, file)
-  return "http://ojgpsx1q3.bkt.clouddn.com/" + key
-}
-
-function getUploadToken(key) {
-  return simpleRequest({
-    method: 'GET',
-    url: "/api/store/upload_token",
-    data: {
-      filename: key
-    }
-  })
-}
-
-function uploadFile(key, token, file) {
-  const req = new XMLHttpRequest()
-  const data = new FormData()
-  data.append("key", key)
-  data.append("token", token)
-  data.append("file", file)
-  req.open('POST', 'http://up-z1.qiniu.com')
-  req.send(data)
-  return requestPromise(req)
-}
-
 function sendPost(content, photo, targetname) {
   const data = {
     target_name: targetname,
@@ -314,35 +284,6 @@ function sendPost(content, photo, targetname) {
     data: data
   })
 
-}
-
-function requestPromise(req) {
-  return new Promise((resolve, reject) => {
-    req.onloadend = function() {
-      if (req.status == 200) {
-        resolve(req.responseText)
-      } else {
-        reject(req.statusText)
-      }
-    }
-  })
-}
-
-function requestAPIPromise(req) {
-  const promise = requestPromise(req)
-  return new Promise((resolve, reject) => {
-    promise.then(r=>{
-      const data = JSON.parse(r)
-      if (data.errcode == 0) {
-        resolve(data)
-      } else {
-        reject(data)
-      }
-    }).catch(e=>{
-      console.error(e)
-      reject({errcode: 1000, errmsg: "network error"})
-    })
-  })
 }
 
 async function getPosts(start_id=-1, limit=5) {

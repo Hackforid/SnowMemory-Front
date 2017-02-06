@@ -1,3 +1,4 @@
+const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const merge = require('webpack-merge')
 const path = require('path')
@@ -72,6 +73,9 @@ const baseConfig = {
       disable: false,
       allChunks: true,
     }),
+    //new webpack.optimize.CommonsChunkPlugin({
+          //name: 'vendor',
+    //}),
   ]
 }
 
@@ -80,6 +84,7 @@ function getEntry() {
   manifest.js_files.forEach(e=>{
     entry[e.name] = [path.resolve(config.src, e.file)]
   })
+  //entry['vendor'] = ['vue', 'element-ui']
   return entry
 }
 
@@ -91,6 +96,11 @@ function getHtmlOutput() {
       template: path.resolve(config.src, e.file),
       inject: true,
       chunks: e.chunks,
+      favicon: false,
+      minify: {
+        removeComments: true,
+        collapseWhitespace: false
+      },
     }))
   })
   return htmls
@@ -99,9 +109,9 @@ function getHtmlOutput() {
 module.exports = merge(baseConfig, {
   entry: getEntry(),
   output: {
-    path: path.resolve(config.dist, "../dist"),
+    path: path.resolve(config.dist, "../dist/"),
     publicPath: "/",
-    filename: "[name].[hash].js"
+    filename: "static/[name].[hash].js"
   },
   plugins: getHtmlOutput()
 })

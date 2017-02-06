@@ -26,7 +26,7 @@ gulp.task('rsync', function() {
 })
 
 gulp.task('clean', function () {
-  return gulp.src('dist')
+  return gulp.src('dist/')
         .pipe(clean({force: true}))
 })
 
