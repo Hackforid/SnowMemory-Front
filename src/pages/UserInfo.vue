@@ -149,6 +149,10 @@ export default {
   created() {
     this.initData()
   },
+  beforeRouteUpdate (to, from, next) {
+    next()
+    this.initData()
+  },
   methods: {
     initData() {
       this.showUserInfo()

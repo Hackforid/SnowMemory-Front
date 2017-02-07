@@ -5,8 +5,9 @@
     <el-dialog title="新的记忆" v-model="showPostDialog" size="small">
       <div class="new-post">
         <div class="card file-uploader">
-          <span>+挑选照片</span>
-          <input class="post_file" @change="onFileChange" type="file" name="pic" id="pic" accept="image/gif, image/jpeg, image/png" />
+          <span v-if="!loadingSelectedImage">+挑选照片</span>
+          <img class="post-file-loading" v-if="loadingSelectedImage" src="/static/img/loading_circle_progress.gif" />
+          <input class="post-file" @change="onFileChange" type="file" name="pic" id="pic" accept="image/gif, image/jpeg, image/png" />
         </div>
         <img class="post-img" v-if="image" :src="image"/>
         <typeahead v-if="image" class="target-input" :items="userOptions" @valueUpdate="targetNameUpdated" placeholder="照片的主人是?"></typeahead>
@@ -66,6 +67,14 @@
         opacity: 0;
         filter: alpha(opacity=0);
         cursor: pointer;
+      }
+
+      img {
+        position: absolute;
+        position: absolute; left: 50%; top: 50%;
+        transform: translate(-50%, -50%);
+        height: 10px;
+        width: 10px;
       }
     }
 
@@ -143,6 +152,7 @@ export default {
       newPostWarning: "",
       showPostDialog: false,
       sendPostBtnStatus: 'default',
+      loadingSelectedImage: false,
     }
   },
   computed: {
@@ -187,13 +197,14 @@ export default {
       this.createImage(files[0]);
     },
     createImage(file) {
-      this.image = "/static/img/loading_circle_progress.gif"
+      this.loadingSelectedImage = true
       var image = new Image();
       var reader = new FileReader();
       var vm = this;
 
       reader.onload = (e) => {
         vm.image = e.target.result;
+        this.loadingSelectedImage = false
       };
       reader.readAsDataURL(file);
     },

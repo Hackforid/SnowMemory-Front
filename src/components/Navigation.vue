@@ -7,7 +7,7 @@
       <span class="logo-name" @click="gotoIndex">SnowMemory</span>
     </div>
     <div class="nav-center">
-      <typeahead class="search-input" :items="userOptions" placeholder="搜索" @enter="onSearch"></typeahead>
+      <search-view placeholder="搜索" :users="users"/>
     </div>
     <div class="nav-right">
       <span class="post-photo" @click="onNewPostClick" v-if="showPostBtn">发照片</span>
@@ -109,17 +109,16 @@
 import bus from '../bus'
 import router from '../router'
 import {simpleRequest} from '../utils/network'
-import Typeahead from '../components/Typeahead'
+import SearchView from '../components/SearchView'
 export default {
   name: 'navigation',
   components: {
-    Typeahead,
+    SearchView,
   },
   data() {
     return {
       searchValue: '',
       users: [],
-      userOptions: [],
     }
   },
   computed: {
@@ -151,18 +150,12 @@ export default {
         name: 'timeline',
       })
     },
-    onSearch(text) {
-      const user = this.users.find(i=>i.email == text)
-      if (user) {
-        router.push({
-          name: 'userinfo',
-          params: {username: user.username}
-        })
-      }
-    },
     async getUsers() {
-      const users = (await getUsers()).users
-      this.userOptions = users.map(e=>e.email)
+      try {
+        const users = (await getUsers()).users
+        this.users = users
+      } catch(e) {
+      }
     },
   },
 }
