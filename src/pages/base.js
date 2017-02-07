@@ -1,5 +1,8 @@
 export const basePageMixin = {
   created() {
+    if (!window.history.state) {
+      return
+    }
     this.historyKey = window.history.state.key
     const _data = this.$route.meta[this.historyKey]
     if (_data) {

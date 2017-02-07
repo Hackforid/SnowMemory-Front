@@ -19,7 +19,7 @@
           :class="{'item-hover': user.id == hoveredItemId}"
           @click="selectUser(user.username)"
           >
-          <img class="user-avatar" :src="user.avatar || '/static/img/logo.png'"/>
+          <img class="user-avatar" :src="user.avatar ? user.avatar + '-avatar' : '/static/img/logo.png'"/>
           <div class="user-info">
             <span class="user-name">{{user.username}}</span>
             <span class="user-email">{{user.email}}</span>
@@ -48,7 +48,6 @@ export default {
   },
   watch: {
     users() {
-      console.log('users change' + this.users.length)
       this.options = this.users
     },
     content() {

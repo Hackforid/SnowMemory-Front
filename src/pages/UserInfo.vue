@@ -2,7 +2,7 @@
 <div class="info-container">
   <div class="info">
     <div class="info-avatar">
-      <img class="info-avatar-img" :src="(userinfo && userinfo.user && userinfo.user.avatar) || '/static/img/logo.png'"/>
+      <div class="info-avatar-img-div" :style="{backgroundImage: 'url(' + userinfo.user.avatar  + ')'}" v-if="userinfo" />
     </div>
     <div class="info-detail">
       <div class="info-username-box">
@@ -15,7 +15,7 @@
   </div>
   <div class="post-photos" v-if="userinfo && userinfo.posts">
     <div class="post-photo" v-for="post in userinfo.posts">
-      <img :src="post.photos[0]" @click="gotoPostInfo(post.id)"/>
+      <img :src="post.photos[0] + '-normal'" @click="gotoPostInfo(post.id)"/>
     </div>
 
   </div>
@@ -39,9 +39,12 @@
   .info-avatar {
     width: 150px;
     height: 150px;
-    img {
-      height: 100%;
-      width: 100%;
+    .info-avatar-img-div {
+      width:100%;
+      height:100%;
+      background-image: url(http://ojgpsx1q3.bkt.clouddn.com/photo_1486454108240.jpg);
+      background-size: cover;
+      background-position: center center;
       border-radius: 50%;
     }
   }

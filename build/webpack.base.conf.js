@@ -96,7 +96,6 @@ function getHtmlOutput() {
       template: path.resolve(config.src, e.file),
       inject: true,
       chunks: e.chunks,
-      favicon: false,
       minify: {
         removeComments: true,
         collapseWhitespace: false

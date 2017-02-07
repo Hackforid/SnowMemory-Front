@@ -1,7 +1,7 @@
 <template>
 <div class="card post">
   <div class="post_header">
-    <img class="avatar" :src="post.author && post.author.avatar ? (post.author.avatar + '-tiny') : '/static/img/logo.png'" @click="gotoUserInfo(post.author.username)" /><span @click="gotoUserInfo(post.author.username)" class="top-name">{{post.author && post.author.username}}</span>
+    <img class="avatar" :src="post.author && post.author.avatar ? (post.author.avatar + '-avatar') : '/static/img/logo.png'" @click="gotoUserInfo(post.author.username)" /><span @click="gotoUserInfo(post.author.username)" class="top-name">{{post.author && post.author.username}}</span>
     <span class="created-time">{{post.createdTime}}</span>
   </div>
   <img class="photo" :src="post.photos[0] + '-normal'" @click="gotoPostInfo()"/>
