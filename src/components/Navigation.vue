@@ -18,80 +18,6 @@
 </template>
 
 
-
-<script>
-import bus from '../bus'
-import router from '../router'
-import {simpleRequest} from '../utils/network'
-import Typeahead from '../components/Typeahead'
-export default {
-  name: 'navigation',
-  components: {
-    Typeahead,
-  },
-  data() {
-    return {
-      options: [],
-      searchValue: '',
-      users: [],
-      userOptions: [],
-    }
-  },
-  computed: {
-    username() {
-      this.getUsers()
-      return this.$store.state.username
-    },
-    showPostBtn() {
-      return this.$route.name == 'timeline'
-    }
-  },
-  created() {
-    this.initData()
-  },
-  methods: {
-    async initData() {
-    },
-    onNewPostClick() {
-      bus.$emit('onNewPostClick')
-    },
-    gotoUserInfo() {
-      router.push({
-        name: 'userinfo',
-        params: {username: this.username}
-      })
-    },
-    gotoIndex() {
-      router.push({
-        name: 'timeline',
-      })
-    },
-    onSearch(text) {
-      const user = this.users.find(i=>i.username == text)
-      if (user) {
-        router.push({
-          name: 'userinfo',
-          params: {username: text}
-        })
-      }
-    },
-    async getUsers() {
-      const users = (await getUsers()).users
-      this.userOptions = users.map(e=>e.username)
-    },
-  },
-}
-
-function getUsers() {
-  return simpleRequest({
-    url: '/api/users',
-  })
-}
-
-</script>
-
-
-
 <style lang="scss">
 @import '../assets/css/common';
 .navigation {
@@ -177,3 +103,75 @@ function getUsers() {
   }
 }
 </style>
+
+
+<script>
+import bus from '../bus'
+import router from '../router'
+import {simpleRequest} from '../utils/network'
+import Typeahead from '../components/Typeahead'
+export default {
+  name: 'navigation',
+  components: {
+    Typeahead,
+  },
+  data() {
+    return {
+      searchValue: '',
+      users: [],
+      userOptions: [],
+    }
+  },
+  computed: {
+    username() {
+      this.getUsers()
+      return this.$store.state.username
+    },
+    showPostBtn() {
+      return this.$route.name == 'timeline'
+    }
+  },
+  created() {
+    this.initData()
+  },
+  methods: {
+    async initData() {
+    },
+    onNewPostClick() {
+      bus.$emit('onNewPostClick')
+    },
+    gotoUserInfo() {
+      router.push({
+        name: 'userinfo',
+        params: {username: this.username}
+      })
+    },
+    gotoIndex() {
+      router.push({
+        name: 'timeline',
+      })
+    },
+    onSearch(text) {
+      const user = this.users.find(i=>i.email == text)
+      if (user) {
+        router.push({
+          name: 'userinfo',
+          params: {username: user.username}
+        })
+      }
+    },
+    async getUsers() {
+      const users = (await getUsers()).users
+      this.userOptions = users.map(e=>e.email)
+    },
+  },
+}
+
+function getUsers() {
+  return simpleRequest({
+    url: '/api/users',
+  })
+}
+
+</script>
+

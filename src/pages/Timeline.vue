@@ -187,6 +187,7 @@ export default {
       this.createImage(files[0]);
     },
     createImage(file) {
+      this.image = "/static/img/loading_circle_progress.gif"
       var image = new Image();
       var reader = new FileReader();
       var vm = this;

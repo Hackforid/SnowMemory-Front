@@ -1,12 +1,12 @@
 <template>
 <div class="card post">
   <div class="post_header">
-    <img class="avatar" :src="post.target && post.target.avatar ? (post.target.avatar + '-tiny') : '/static/img/logo.png'" @click="gotoUserInfo(post.target.username)" /><span @click="gotoUserInfo(post.target.username)" class="target">{{post.target && post.target.username}}</span>
+    <img class="avatar" :src="post.author && post.author.avatar ? (post.author.avatar + '-tiny') : '/static/img/logo.png'" @click="gotoUserInfo(post.author.username)" /><span @click="gotoUserInfo(post.author.username)" class="top-name">{{post.author && post.author.username}}</span>
     <span class="created-time">{{post.createdTime}}</span>
   </div>
   <img class="photo" :src="post.photos[0] + '-normal'" @click="gotoPostInfo()"/>
   <div class="author-line">
-    <span class="author" @click="gotoUserInfo(post.author.username)">@{{post.author && post.author.username}}</span>
+    <span class="target-name" @click="gotoUserInfo(post.target.username)">关于 @{{post.target && post.target.username}} 的照片</span>
     <span class="author-comment">{{post.content}}</span>
   </div>
   <span class="btn-more-comment" v-if="!post.showAllComments" @click="showAllComments()">全部 {{post.comments.length}} 条评论</span>
@@ -51,7 +51,7 @@
       cursor: pointer;
     }
 
-    .target {
+    .top-name {
       font-size: 16px;
       margin-left: 18px;
       flex-grow: 1;
@@ -80,7 +80,7 @@
     padding: 0;
     margin: 20px 24px 14px 23px;
 
-    .author {
+    .target-name {
       font-weight: bold;
       cursor: pointer;
     }
