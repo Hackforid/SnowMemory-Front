@@ -18,10 +18,11 @@
   <div class="new-comment">
     <input type="text" class="new-comment-input" placeholder="添加评论" v-model.trim="post.newComment" @keyup.enter="newComment"></input>
     <img class="new-comment-loading-progress" src="/static/img/loading_circle_progress.gif" v-if="post.isSendingComment" />
-    <el-dropdown trigger="click" v-if="post.author.username == username" @command="handlePostCommand">
+    <el-dropdown trigger="click"  @command="handlePostCommand">
       <img class="new-comment-more" src="/static/img/post-more.png"/>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item command="delete" >删除</el-dropdown-item>
+        <el-dropdown-item command="show">查看原图</el-dropdown-item>
+        <el-dropdown-item command="delete" v-if="post.author.username == username" >删除</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
   </div>
@@ -153,7 +154,6 @@
     margin-bottom: 6px;
     display: flex;
     flex-direction: row;
-    align-items: center;
 
     .comment-item-author {
       color: #262626;
@@ -170,6 +170,7 @@
       line-height: 18px;
       margin-left: 10px;
       flex-grow: 1;
+      word-break: break-all;
     }
 
     .comment-item-delete {
@@ -255,7 +256,10 @@ export default {
       switch(command) {
         case 'delete':
           this.deletePost()
-          break;
+          break
+        case 'show':
+          window.open(this.post.photos[0])
+          break
       }
     },
     async deletePost() {
