@@ -7,7 +7,7 @@
       <span class="logo-name" @click="gotoIndex">SnowMemory</span>
     </div>
     <div class="nav-center">
-      <search-view placeholder="搜索" :users="users"/>
+      <search-view placeholder="搜索" :users="users" @selectUser="onSearchedUser"/>
     </div>
     <div class="nav-right">
       <span class="post-photo" @click="onNewPostClick" v-if="showPostBtn">发照片</span>
@@ -143,6 +143,12 @@ export default {
       router.push({
         name: 'userinfo',
         params: {username: this.username}
+      })
+    },
+    onSearchedUser(username) {
+      router.push({
+        name: 'userinfo',
+        params: {username: username}
       })
     },
     gotoIndex() {

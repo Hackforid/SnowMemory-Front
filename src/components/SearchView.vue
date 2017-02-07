@@ -17,7 +17,7 @@
         <div class="user-item" v-for="user in options"
           v-on:mouseenter="hoverSelect(user)"
           :class="{'item-hover': user.id == hoveredItemId}"
-          @click="gotoUserInfo(user.username)"
+          @click="selectUser(user.username)"
           >
           <img class="user-avatar" :src="user.avatar || '/static/img/logo.png'"/>
           <div class="user-info">
@@ -36,34 +36,39 @@
 import router from '../router'
 export default {
   name: 'searchView',
-  props: ['users', 'placeholder'],
+  props: ['users', 'placeholder', 'content'],
   data() {
     return {
       searchText: "",
       isInputFocused: false,
       hoveredItemId: null,
       isHoverSelected: false,
-      options: [],
+      options: this.users,
     }
   },
   watch: {
     users() {
+      console.log('users change' + this.users.length)
       this.options = this.users
-    }
+    },
+    content() {
+      this.searchText = this.content
+    },
   },
   methods: {
-    gotoUserInfo(username) {
+    selectUser(username) {
       this.isHoverSelected = false
       this.isInputFocused = false
       this.searchText = null
       this.options = this.users
 
-      router.push({
-        name: 'userinfo',
-        params: {username: username}
-      })
+      this.$emit('selectUser', username)
     },
     update(val) {
+      if (!val) {
+        this.options = this.users
+        return
+      }
       val = val.toLowerCase()
       const options = []
       this.users.forEach(user=>{
@@ -78,10 +83,8 @@ export default {
     },
     hoverSelect(user) {
       this.hoveredItemId = user.id
-      this.isHoverSelected = true
-    },
+      this.isHoverSelected = true },
     leaveSelected() {
-      console.log('leave')
       this.isHoverSelected = false
     }
   }
@@ -110,6 +113,7 @@ export default {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    width: 240px;
 
     background: #fff;
     border: solid 1px #e6e6e6;
@@ -147,7 +151,7 @@ export default {
 
   .user-item {
     height: 70px;
-    width: 240px;
+    width: 100%;
     box-sizing: border-box;
     display: flex;
     flex-direction: row;

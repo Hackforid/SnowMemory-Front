@@ -6,7 +6,7 @@
   </div>
   <img class="photo" :src="post.photos[0] + '-normal'" @click="gotoPostInfo()"/>
   <div class="author-line">
-    <span class="target-name" @click="gotoUserInfo(post.target.username)">关于 @{{post.target && post.target.username}} 的照片</span>
+    <span class="target-name" @click="gotoUserInfo(post.target.username)"><span class="small-font">关于</span> @{{post.target && post.target.username}} <span class="small-font">的照片</span></span>
     <span class="author-comment">{{post.content}}</span>
   </div>
   <span class="btn-more-comment" v-if="!post.showAllComments" @click="showAllComments()">全部 {{post.comments.length}} 条评论</span>
@@ -83,6 +83,14 @@
     .target-name {
       font-weight: bold;
       cursor: pointer;
+      text-align:: center;
+
+      .small-font {
+        font-weight: normal;
+        font-size: 12px;
+        color: #999;
+        line-height: 100%;
+      }
     }
 
     .author-comment {

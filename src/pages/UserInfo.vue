@@ -2,7 +2,7 @@
 <div class="info-container">
   <div class="info">
     <div class="info-avatar">
-      <img class="info-avatar-img" :src="userinfo && userinfo.user && userinfo.user.avatar"/>
+      <img class="info-avatar-img" :src="(userinfo && userinfo.user && userinfo.user.avatar) || '/static/img/logo.png'"/>
     </div>
     <div class="info-detail">
       <div class="info-username-box">

@@ -10,8 +10,11 @@
           <input class="post-file" @change="onFileChange" type="file" name="pic" id="pic" accept="image/gif, image/jpeg, image/png" />
         </div>
         <img class="post-img" v-if="image" :src="image"/>
-        <typeahead v-if="image" class="target-input" :items="userOptions" @valueUpdate="targetNameUpdated" placeholder="照片的主人是?"></typeahead>
-        <input type="text" class="post-content" v-if="image" v-model="message" placeholder="描述"></input>
+        <span class="label-search" v-if="image">请务必选择这是关于谁的照片</span>
+        <search-view class="target-input" placeholder="搜索"
+          v-if="image"
+          :users="users" @selectUser="onSelectedTarget" :content="selectedUsername"/>
+        <input type="text" class="post-content" v-if="image" v-model="message" placeholder="描述（可选）"></input>
         <span class="new-post-warning" v-if="newPostWarning">{{newPostWarning}}</span>
         <ex-button class="post-send" v-if="image" :status="sendPostBtnStatus" @click="onClickSend">发布</ex-button>
       </div>
@@ -40,10 +43,15 @@
     width: 100%;
     box-sizing: border-box;
 
+    .label-search {
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
     .target-input {
       width: 100%;
       box-sizing: border-box;
-      margin-top: 20px;
+      margin-top: 4px;
     }
     .file-uploader {
       box-sizing: border-box;
@@ -134,25 +142,26 @@ import LoadMoreContainer from '../components/LoadMoreContainer.vue'
 import { Message } from 'element-ui'
 import Post from '../components/Post.vue'
 import {basePageMixin} from './base.js'
+import SearchView from '../components/SearchView.vue'
 
 export default {
   name: 'timeline',
   mixins: [basePageMixin],
   components: {
-    Typeahead, ExButton, LoadMoreContainer, Post,
+    Typeahead, ExButton, LoadMoreContainer, Post, SearchView
   },
   data: function() {
     return {
       message: "",
       image: '',
       file: '',
-      userOptions: [],
+      users: [],
       posts: [],
-      targetName: "",
       newPostWarning: "",
       showPostDialog: false,
       sendPostBtnStatus: 'default',
       loadingSelectedImage: false,
+      selectedUsername: null,
     }
   },
   computed: {
@@ -173,17 +182,23 @@ export default {
     }
 
     bus.$on('onNewPostClick', this.showNewPostDialog)
+    this.getUsers()
   },
   destroyed() {
     bus.$off('onNewPostClick', this.showNewPostDialog)
   },
   methods: {
     async getUsers() {
-      const users = (await getUsers()).users
-      this.userOptions = users.map(e=>e.username)
+      try {
+        const users = (await getUsers()).users
+        this.users = users
+      } catch(e) {
+      }
+    },
+    onSelectedTarget(username) {
+      this.selectedUsername = username
     },
     showNewPostDialog() {
-      console.log('new post')
       this.showPostDialog = true
     },
     onFileChange(e) {
@@ -213,29 +228,30 @@ export default {
         this.newPostWarning = "请选择需要发布的图片"
         return
       }
-      if (!this.targetName) {
+      if (!this.selectedUsername) {
         this.newPostWarning = "你拍的谁？"
         return
       }
       this.newPostWarning = ''
       try {
         this.sendPostBtnStatus = 'loading'
-        const postResp = await sendNewPost(this.message, this.file, this.targetName)
+        const postResp = await sendNewPost(this.message, this.file, this.selectedUsername)
         this.showPostDialog = false
         this.posts.unshift(postResp.post)
         this.file = null
         this.message = null
-        this.targetName = null
+        this.selectedUsername = null
         this.image = null
+        Message({
+          message: '发送成功',
+          type: 'success'
+        })
       } catch(e) {
         this.newPostWarning = e.errmsg
       } finally {
         this.sendPostBtnStatus = 'default'
       }
 
-    },
-    targetNameUpdated(val) {
-      this.targetName = val
     },
     async onLoadMorePost() {
       const start_id = this.posts[this.posts.length-1].id
